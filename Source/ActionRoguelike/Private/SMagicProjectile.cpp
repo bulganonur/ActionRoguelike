@@ -14,6 +14,7 @@ ASMagicProjectile::ASMagicProjectile()
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
 	RootComponent = SphereComp;
+	SphereComp->SetCollisionProfileName("Projectile");
 
 	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
 	EffectComp->SetupAttachment(SphereComp);
