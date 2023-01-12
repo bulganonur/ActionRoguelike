@@ -7,12 +7,14 @@
 #include "SCharacter.generated.h"
 
 class UCameraComponent;
+class USInteractionComponent;
 class USpringArmComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 {
 	GENERATED_BODY()
+
 protected:
 
 	UPROPERTY(EditAnywhere)
@@ -32,9 +34,13 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
 
+	UPROPERTY(VisibleAnywhere)
+	USInteractionComponent* InteractionComp;
+
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void PrimaryAttack();
+	void PrimaryInteract();
 
 public:	
 	// Called every frame
