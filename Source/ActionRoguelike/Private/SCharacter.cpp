@@ -5,8 +5,11 @@
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "SInteractionComponent.h"
+
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -25,8 +28,11 @@ ASCharacter::ASCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
-}
 
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
+}
+	
 // Called when the game starts or when spawned
 void ASCharacter::BeginPlay()
 {
@@ -52,9 +58,12 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
-	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
+	
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
+	PlayerInputComponent->BindAction("UltimateAttack", IE_Pressed, this, &ASCharacter::UltimateAttack);
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ASCharacter::DashAbility);
 
 }
 
@@ -78,6 +87,51 @@ void ASCharacter::MoveRight(float Value)
 	AddMovementInput(RightVector, Value);
 }
 
+FTransform ASCharacter::CalculateTransform()
+{
+	/* Variables needed for LineTrace */
+	
+	FVector CamVector = CameraComp->GetComponentLocation();
+	FRotator CamRotation = CameraComp->GetComponentRotation();
+	FVector EndVector = CamVector + (CamRotation.Vector() * 10000);
+	GetWorld()->LineTraceSingleByChannel(Hit, CamVector, EndVector, ECC_WorldStatic);
+	if (Hit.bBlockingHit == false)
+	{
+		Hit.ImpactPoint = Hit.TraceEnd;
+	}
+
+	DrawDebugLine
+	(
+		GetWorld(),
+		CamVector,
+		EndVector,
+		FColor::Red,
+		true,
+		0.0f,
+		0,
+		2.5f
+	);
+
+
+	/* Variables needed for SpawnActor */
+	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+	FRotator SpawnRotation = (Hit.ImpactPoint - HandLocation).Rotation();
+	
+	DrawDebugLine
+	(
+		GetWorld(),
+		HandLocation,
+		Hit.ImpactPoint,
+		FColor::Blue,
+		true,
+		0.0f,
+		0,
+		2.5f
+	);
+	
+	return FTransform(SpawnRotation, HandLocation);
+}
+
 void ASCharacter::PrimaryAttack()
 {
 	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f);
@@ -87,15 +141,68 @@ void ASCharacter::PrimaryAttack()
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
-	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+	FTransform SpawnTM = CalculateTransform();
 
-	FTransform SpawnTM = FTransform(GetActorRotation(), HandLocation);
+	GetWorld()->SpawnActor<AActor>(MagicProjectileClass, SpawnTM, SpawnParams);
+}
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
+void ASCharacter::UltimateAttack()
+{
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::UltimateAttack_TimeElapsed, 0.2f);
 
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	PlayAnimMontage(AttackAnim);
+}
+
+void ASCharacter::UltimateAttack_TimeElapsed()
+{
+	FTransform SpawnTM = CalculateTransform();
+
+	GetWorld()->SpawnActor<AActor>(DarkholeProjectileClass, SpawnTM, SpawnParams);
+}
+
+void ASCharacter::DashAbility()
+{
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::DashAbility_TimeElapsed_SpawnProjectile, 0.2f);
+
+	PlayAnimMontage(AttackAnim);
+}
+
+void ASCharacter::DashAbility_TimeElapsed_SpawnProjectile()
+{
+	FTransform SpawnTM = CalculateTransform();
+
+	DashObjPtr = GetWorld()->SpawnActor<AActor>(DashProjectileClass, SpawnTM, SpawnParams);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::DashAbility_TimeElapsed_Teleport, 0.2f);
+}
+
+void ASCharacter::DashAbility_TimeElapsed_Teleport()
+{
+	if (DashObjPtr)
+	{
+		if (!DashObjPtr->IsHidden())
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), VFX_TeleportOut, DashObjPtr->GetActorLocation());
+			DashObjPtr->AActor::SetActorHiddenInGame(true);
+			
+			/* Getting DashProjectile's ProjectileMovementComponent */
+			UActorComponent* ActorCompToCast = DashObjPtr->GetComponentByClass(ProjectileMovementCompClass);
+			UProjectileMovementComponent* DashMovementComp = Cast<UProjectileMovementComponent>(ActorCompToCast);
+			if (DashMovementComp)
+			{
+				DashMovementComp->StopMovementImmediately();
+			}
+
+			GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::DashAbility_TimeElapsed_Teleport, 0.2f);
+		}
+
+		else
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), VFX_TeleportIn, GetActorLocation());
+			TeleportTo(DashObjPtr->GetActorLocation(), GetActorRotation());
+			DashObjPtr->Destroy();
+		}
+	}
 }
 
 void ASCharacter::PrimaryInteract()
@@ -106,4 +213,5 @@ void ASCharacter::PrimaryInteract()
 	}
 
 }
+
 

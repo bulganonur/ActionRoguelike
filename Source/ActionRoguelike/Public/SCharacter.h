@@ -8,7 +8,9 @@
 
 class UCameraComponent;
 class USInteractionComponent;
+class UProjectileMovementComponent;
 class USpringArmComponent;
+
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -18,18 +20,43 @@ class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> ProjectileClass;
+	TSubclassOf<AActor> MagicProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AActor> DarkholeProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AActor> DashProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<UProjectileMovementComponent> ProjectileMovementCompClass;
+
+	UPROPERTY()
+	AActor* DashObjPtr;
+
+	UPROPERTY(EditDefaultsOnly)
+	UParticleSystem* VFX_TeleportIn;
+
+	UPROPERTY(EditDefaultsOnly)
+	UParticleSystem* VFX_TeleportOut;
+
+	UPROPERTY(EditDefaultsOnly)
+	UParticleSystem* VFX_PortalFX;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackAnim;
 
 	FTimerHandle TimerHandle_PrimaryAttack;
 
+	FHitResult Hit;
+	FActorSpawnParameters SpawnParams;
+
 public:
 	// Sets default values for this character's properties
 	ASCharacter();
 
 protected:
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -42,10 +69,22 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	USInteractionComponent* InteractionComp;
 
+
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+	
+	FTransform CalculateTransform();
+
 	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();
+
+	void UltimateAttack();
+	void UltimateAttack_TimeElapsed();
+
+	void DashAbility();
+	void DashAbility_TimeElapsed_SpawnProjectile();
+	void DashAbility_TimeElapsed_Teleport();
+
 	void PrimaryInteract();
 
 public:	

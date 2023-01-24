@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "SProjectile.h"
-#include "SMagicProjectile.generated.h"
+#include "SDarkholeProjectile.generated.h"
 
 UCLASS()
-class ACTIONROGUELIKE_API ASMagicProjectile : public ASProjectile
+class ACTIONROGUELIKE_API ASDarkholeProjectile : public ASProjectile
 {
 	GENERATED_BODY()
-
+	
 };
