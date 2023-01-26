@@ -8,6 +8,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "SAttributeComponent.h"
 #include "SInteractionComponent.h"
 
 
@@ -29,8 +30,11 @@ ASCharacter::ASCharacter()
 
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
 
+	AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComp"));
+
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnParams.Instigator = this;
+
 }
 	
 // Called when the game starts or when spawned
@@ -185,12 +189,11 @@ void ASCharacter::DashAbility_TimeElapsed_Teleport()
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), VFX_TeleportOut, DashObjPtr->GetActorLocation());
 			DashObjPtr->AActor::SetActorHiddenInGame(true);
 			
-			/* Getting DashProjectile's ProjectileMovementComponent */
-			UActorComponent* ActorCompToCast = DashObjPtr->GetComponentByClass(ProjectileMovementCompClass);
-			UProjectileMovementComponent* DashMovementComp = Cast<UProjectileMovementComponent>(ActorCompToCast);
-			if (DashMovementComp)
+			/* Getting SProjectile's ProjectileMovementComponent */
+			UProjectileMovementComponent* MovementComp = Cast<UProjectileMovementComponent>(DashObjPtr->GetComponentByClass(UProjectileMovementComponent::StaticClass()));
+			if (MovementComp)
 			{
-				DashMovementComp->StopMovementImmediately();
+				MovementComp->StopMovementImmediately();
 			}
 
 			GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::DashAbility_TimeElapsed_Teleport, 0.2f);

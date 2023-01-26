@@ -2,5 +2,25 @@
 
 
 #include "SMagicProjectile.h"
+#include "Components/SphereComponent.h"
+#include "SAttributeComponent.h"
 
+ASMagicProjectile::ASMagicProjectile()
+{
+	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnActorOverlap);
 
+}
+
+void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+		if (AttributeComp)
+		{
+			AttributeComp->ApplyHealthChange(-10.0f);
+
+			Destroy();
+		}
+	}
+}

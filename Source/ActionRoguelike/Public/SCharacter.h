@@ -7,8 +7,8 @@
 #include "SCharacter.generated.h"
 
 class UCameraComponent;
+class USAttributeComponent;
 class USInteractionComponent;
-class UProjectileMovementComponent;
 class USpringArmComponent;
 
 
@@ -27,9 +27,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<AActor> DashProjectileClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<UProjectileMovementComponent> ProjectileMovementCompClass;
 
 	UPROPERTY()
 	AActor* DashObjPtr;
@@ -68,6 +65,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	USInteractionComponent* InteractionComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USAttributeComponent* AttributeComp;
 
 
 	void MoveForward(float Value);
