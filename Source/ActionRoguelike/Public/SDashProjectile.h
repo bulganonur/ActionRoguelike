@@ -6,9 +6,7 @@
 #include "SProjectile.h"
 #include "SDashProjectile.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class ACTIONROGUELIKE_API ASDashProjectile : public ASProjectile
 {
@@ -20,20 +18,19 @@ public:
 
 protected:
 	
-
-	virtual void PostInitializeComponents();
-
-	virtual void BeginPlay();
-
-	UFUNCTION()
-	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	UPROPERTY(EditDefaultsOnly, Category = "Teleport")
+	float TeleportDelay;
 	
-	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* VFX_TeleportIn;
+	UPROPERTY(EditDefaultsOnly, Category = "Teleport")
+	float DetonateDelay;
 
-	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* VFX_TeleportOut;
+	/* Handle to cancel timer if we already hit something */
+	FTimerHandle TimerHandle_DelayedDetonate;
 
-	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* VFX_PortalFX;
+	/* Base class using BlueprintNativeEvent, we must override the _Implementation not the Explode() */
+	virtual void Explode_Implementation() override;
+
+	void TeleportInstigator();
+
+	virtual void BeginPlay() override;
 };

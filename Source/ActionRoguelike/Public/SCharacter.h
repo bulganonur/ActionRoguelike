@@ -28,34 +28,28 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<AActor> DashProjectileClass;
 
-	UPROPERTY()
-	AActor* DashObjPtr;
-
-	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* VFX_TeleportIn;
-
-	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* VFX_TeleportOut;
-
-	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* VFX_PortalFX;
-
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackAnim;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	UParticleSystem* VFX_MuzzleFlash_PrimaryAttack;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	UParticleSystem* VFX_MuzzleFlash_Dash;
+
+	float AttackAnimDelay;
+
 	FTimerHandle TimerHandle_PrimaryAttack;
-
-	FHitResult Hit;
-	FActorSpawnParameters SpawnParams;
-
+	FTimerHandle TimerHandle_UltimateAttack;
+	FTimerHandle TimerHandle_Dash;
+	
 public:
 	// Sets default values for this character's properties
 	ASCharacter();
 
 protected:
-	
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+
+	virtual void PostInitializeComponents() override;
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
@@ -72,8 +66,6 @@ protected:
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
-	
-	FTransform CalculateTransform();
 
 	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();
@@ -83,14 +75,15 @@ protected:
 
 	void DashAbility();
 	void DashAbility_TimeElapsed_SpawnProjectile();
-	void DashAbility_TimeElapsed_Teleport();
 
 	void PrimaryInteract();
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
+	UFUNCTION()
+	void OnHealtChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+
+public:	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 

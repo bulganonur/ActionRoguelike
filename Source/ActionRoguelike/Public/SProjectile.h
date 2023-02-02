@@ -6,11 +6,12 @@
 #include "GameFramework/Actor.h"
 #include "SProjectile.generated.h"
 
+class UAudioComponent;
 class UParticleSystemComponent;
 class UProjectileMovementComponent;
 class USphereComponent;
 
-UCLASS()
+UCLASS(ABSTRACT) // "ABSTRACT" marks this class as incomplete, keeping this out of certain drop-down windows like SpawnActor in Unreal Editor
 class ACTIONROGUELIKE_API ASProjectile : public AActor
 {
 	GENERATED_BODY()
@@ -20,20 +21,32 @@ public:
 	ASProjectile();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USphereComponent* SphereComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	UProjectileMovementComponent* MovementComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UParticleSystemComponent* EffectComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UParticleSystemComponent* VFXComp;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditDefaultsOnly, Category = "VFX")
+	UParticleSystem* VFX_Impact;
 
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	UAudioComponent* SFXComp;
+
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	USoundBase* SFX_Impact;
+	
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void Explode();
+
+	virtual void PostInitializeComponents() override;
+
+	virtual void BeginPlay() override;
 };

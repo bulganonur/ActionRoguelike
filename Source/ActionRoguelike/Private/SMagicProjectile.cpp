@@ -3,24 +3,44 @@
 
 #include "SMagicProjectile.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 #include "SAttributeComponent.h"
 
 ASMagicProjectile::ASMagicProjectile()
 {
-	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnActorOverlap);
-
+	SphereComp->OnComponentHit.AddDynamic(this, &ASMagicProjectile::OnComponentHit);
+	
+	Damage = 20.0f;
 }
 
-void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+
+void ASMagicProjectile::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (OtherActor)
 	{
 		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 		if (AttributeComp)
 		{
-			AttributeComp->ApplyHealthChange(-10.0f);
+			AttributeComp->ApplyHealthChange(-Damage);
 
 		}
-		Destroy();
+		if (OtherActor->HasActiveCameraComponent())
+		{
+			UGameplayStatics::PlayWorldCameraShake(this, CamShake, Hit.ImpactPoint, 0.0f, 400.0f);
+		}
+		DrawDebugSphere
+		(
+			GetWorld(),
+			Hit.ImpactPoint,
+			400.0f,
+			36,
+			FColor::Blue,
+			false,
+			2.0f
+		);
 	}
 }
+
+
+
