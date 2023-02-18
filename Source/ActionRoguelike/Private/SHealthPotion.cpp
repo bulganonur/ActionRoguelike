@@ -5,7 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "SAttributeComponent.h"
-#include "SCharacter.h"
+
 
 ASHealthPotion::ASHealthPotion()
 {
@@ -20,15 +20,13 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 	if (ensure(InstigatorPawn))
 	{
 		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
-		APlayerController* PlayerController = Cast<APlayerController>(InstigatorPawn->GetController());
-		
-		if (ensure(AttributeComp) && ensure(PlayerController))
+		if (ensure(AttributeComp))
 		{
-			if (AttributeComp->GetHealt() < 100.0f && StaticMesh->IsVisible())
+			if (AttributeComp->GetHealth() < AttributeComp->GetHealthMax() && StaticMesh->IsVisible())
 			{
 				AttributeComp->ApplyHealthChange(HealAmount);
 				
-				StaticMesh->SetVisibility(false);
+				Deactivate();
 				
 				GetWorldTimerManager().SetTimer(TimerHandle_Reactivate, this, &ASHealthPotion::Reactivate, ReactivateDelay);
 				UE_LOG(LogTemp, Warning, TEXT("INTERACTION !!!"));
@@ -41,4 +39,9 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 void ASHealthPotion::Reactivate()
 {
 	StaticMesh->SetVisibility(true);
+}
+
+void ASHealthPotion::Deactivate()
+{
+	StaticMesh->SetVisibility(false);
 }

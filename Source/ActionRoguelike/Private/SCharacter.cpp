@@ -32,6 +32,8 @@ ASCharacter::ASCharacter()
 	bUseControllerRotationYaw = false;
 
 	AttackAnimDelay = 0.2f;
+
+	RHandMuzzleSocket = "Muzzle_01";
 }
 
 
@@ -118,7 +120,7 @@ void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 
 		/* Variables needed for SpawnActor */
 		
-		FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+		FVector HandLocation = GetMesh()->GetSocketLocation(RHandMuzzleSocket);
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -170,7 +172,7 @@ void ASCharacter::PrimaryAttack_TimeElapsed()
 {
 	SpawnProjectile(MagicProjectileClass);
 	
-	UGameplayStatics::SpawnEmitterAttached(VFX_MuzzleFlash_PrimaryAttack, GetMesh(), "Muzzle_01");
+	UGameplayStatics::SpawnEmitterAttached(VFX_MuzzleFlash_PrimaryAttack, GetMesh(), RHandMuzzleSocket);
 }
 
 
@@ -200,7 +202,7 @@ void ASCharacter::DashAbility_TimeElapsed_SpawnProjectile()
 {
 	SpawnProjectile(DashProjectileClass);
 
-	UGameplayStatics::SpawnEmitterAttached(VFX_MuzzleFlash_Dash, GetMesh(), "Muzzle_01");
+	UGameplayStatics::SpawnEmitterAttached(VFX_MuzzleFlash_Dash, GetMesh(), RHandMuzzleSocket);
 }
 
 

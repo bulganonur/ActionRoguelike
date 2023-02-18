@@ -37,6 +37,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
 	UParticleSystem* VFX_MuzzleFlash_Dash;
 
+	UPROPERTY(VisibleAnywhere, Category = "Attack")
+	FName RHandMuzzleSocket;
+
 	float AttackAnimDelay;
 
 	FTimerHandle TimerHandle_PrimaryAttack;

@@ -6,9 +6,7 @@
 #include "SPickup.h"
 #include "SHealthPotion.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class ACTIONROGUELIKE_API ASHealthPotion : public ASPickup
 {
@@ -19,13 +17,16 @@ public:
 
 protected:
 
+	UPROPERTY(EditDefaultsOnly, Category = "Potion Attributes")
 	float HealAmount;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Potion Attributes")
 	float ReactivateDelay;
 
 	FTimerHandle TimerHandle_Reactivate;
 
 	void Reactivate();
-
+	void Deactivate();
 
 public:
 	

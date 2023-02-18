@@ -16,9 +16,14 @@ bool USAttributeComponent::IsAlive() const
 	return Health > 0.0f;
 }
 
-float USAttributeComponent::GetHealt()
+float USAttributeComponent::GetHealth()
 {
 	return Health;
+}
+
+float USAttributeComponent::GetHealthMax()
+{
+	return HealthMax;
 }
 
 bool USAttributeComponent::ApplyHealthChange(float Delta)
