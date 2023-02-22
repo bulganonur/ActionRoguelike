@@ -22,6 +22,8 @@ protected:
 	
 	virtual void PostInitializeComponents() override;
 
+	void SetTargetActor(AActor* NewTarget);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USAttributeComponent* AttributeComp;
 

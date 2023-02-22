@@ -24,7 +24,7 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 		{
 			if (AttributeComp->GetHealth() < AttributeComp->GetHealthMax() && StaticMesh->IsVisible())
 			{
-				AttributeComp->ApplyHealthChange(HealAmount);
+				AttributeComp->ApplyHealthChange(this, HealAmount);
 				
 				Deactivate();
 				

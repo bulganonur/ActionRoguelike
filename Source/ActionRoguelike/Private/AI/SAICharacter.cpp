@@ -4,6 +4,7 @@
 #include "AI/SAICharacter.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackBoardComponent.h"
+#include "BrainComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Perception/PawnSensingComponent.h"
 #include "SAttributeComponent.h"
@@ -35,32 +36,54 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AI Health: %f"), AttributeComp->GetHealth());
 		
-		/*if (NewHealth <= 0.0f)
+		if (InstigatorActor != this)
 		{
-			TurnOff();
-		}*/
+			SetTargetActor(InstigatorActor);
+		}
+
+		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
+
+		if (NewHealth <= 0.0f)
+		{
+			AAIController* AICont = Cast<AAIController>(GetController());
+			if (AICont)
+			{
+				AICont->GetBrainComponent()->StopLogic("Killed.");
+			}
+
+			GetMesh()->SetCollisionProfileName("Ragdoll");
+			GetMesh()->SetAllBodiesSimulatePhysics(true);
+			SetLifeSpan(10.0f);
+		}
 	}
 }
 
-void ASAICharacter::OnSeePawn(APawn* Pawn)
+
+void ASAICharacter::SetTargetActor(AActor* NewTarget)
 {
 	AAIController* AICont = Cast<AAIController>(GetController());
-	
+
 	if (AICont)
 	{
-		AICont->GetBlackboardComponent()->SetValueAsObject("TargetActor", Pawn);
-
-		DrawDebugString
-		(
-			GetWorld(),
-			GetActorLocation(),
-			"PLAYERSPOTTED !!!",
-			nullptr,
-			FColor::White,
-			2.0f,
-			true
-		);
+		AICont->GetBlackboardComponent()->SetValueAsObject("TargetActor", NewTarget);
 	}
+}
+
+
+void ASAICharacter::OnSeePawn(APawn* Pawn)
+{
+	SetTargetActor(Pawn);
+
+	DrawDebugString
+	(
+		GetWorld(),
+		GetActorLocation(),
+		"PLAYERSPOTTED !!!",
+		nullptr,
+		FColor::White,
+		2.0f,
+		true
+	);
 }
 
 

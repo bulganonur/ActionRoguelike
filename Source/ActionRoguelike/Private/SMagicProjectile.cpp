@@ -22,7 +22,7 @@ void ASMagicProjectile::OnComponentHit(UPrimitiveComponent* HitComponent, AActor
 		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 		if (AttributeComp)
 		{
-			AttributeComp->ApplyHealthChange(-Damage);
+			AttributeComp->ApplyHealthChange(GetInstigator(), -Damage);
 
 		}
 		if (OtherActor->HasActiveCameraComponent())

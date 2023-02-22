@@ -5,6 +5,13 @@
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Character.h"
+#include "SAttributeComponent.h"
+
+
+USBTTask_RangedAttack::USBTTask_RangedAttack()
+{
+	ProjectileSpread = 2.0f;
+}
 
 EBTNodeResult::Type USBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
@@ -26,8 +33,16 @@ EBTNodeResult::Type USBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& O
 			return EBTNodeResult::Failed;
 		}
 
+		if (!USAttributeComponent::IsActorAlive(TargetActor))
+		{
+			return EBTNodeResult::Failed;
+		}
+
 		
 		FRotator SpawnRotation = FRotationMatrix::MakeFromX(TargetActor->GetActorLocation() - AIMuzzleLocation).Rotator();
+
+		SpawnRotation.Pitch += FMath::RandRange(-ProjectileSpread, ProjectileSpread);
+		SpawnRotation.Yaw += FMath::RandRange(-ProjectileSpread, ProjectileSpread);
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -38,6 +53,6 @@ EBTNodeResult::Type USBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& O
 		return SpawnedActor ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
 	}
 	
-	
 	return EBTNodeResult::Failed;
 }
+

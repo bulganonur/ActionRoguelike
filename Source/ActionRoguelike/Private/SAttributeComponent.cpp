@@ -11,9 +11,21 @@ USAttributeComponent::USAttributeComponent()
 	
 }
 
+
 bool USAttributeComponent::IsAlive() const
 {
 	return Health > 0.0f;
+}
+
+bool USAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	USAttributeComponent* AttributeComp = GetAttributeComp(Actor);
+	if (AttributeComp)
+	{
+		return AttributeComp->IsAlive();
+	}
+
+	return false;
 }
 
 float USAttributeComponent::GetHealth()
@@ -26,12 +38,24 @@ float USAttributeComponent::GetHealthMax()
 	return HealthMax;
 }
 
-bool USAttributeComponent::ApplyHealthChange(float Delta)
+bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
 	Health = FMath::Clamp(Health + Delta, 0.0f, HealthMax);
 
-	OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
+	OnHealthChanged.Broadcast(InstigatorActor, this, Health, Delta);
 
 	return true;
 }
+
+USAttributeComponent* USAttributeComponent::GetAttributeComp(AActor* FromActor)
+{
+	if (FromActor)
+	{
+		return Cast<USAttributeComponent>(FromActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+		/*return FromActor->FindComponentByClass<USAttributeComponent>();*/ // ue5
+	}
+	
+	return nullptr;
+}
+
 
