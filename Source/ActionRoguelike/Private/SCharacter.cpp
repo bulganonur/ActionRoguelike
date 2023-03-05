@@ -232,3 +232,8 @@ void ASCharacter::OnHealtChanged(AActor* InstigatorActor, USAttributeComponent* 
 	}
 }
 
+
+void ASCharacter::HealSelf(float Amount /* = 100.0f */)
+{
+	AttributeComp->ApplyHealthChange(this, Amount);
+}

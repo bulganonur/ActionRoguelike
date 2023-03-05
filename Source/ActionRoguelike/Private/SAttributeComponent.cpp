@@ -38,8 +38,17 @@ float USAttributeComponent::GetHealthMax()
 	return HealthMax;
 }
 
+bool USAttributeComponent::Kill(AActor* InstigatorActor)
+{
+	return ApplyHealthChange(InstigatorActor, -HealthMax);
+}
+
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
+	if (!GetOwner()->CanBeDamaged())
+	{
+		return false;
+	}
 	Health = FMath::Clamp(Health + Delta, 0.0f, HealthMax);
 
 	OnHealthChanged.Broadcast(InstigatorActor, this, Health, Delta);

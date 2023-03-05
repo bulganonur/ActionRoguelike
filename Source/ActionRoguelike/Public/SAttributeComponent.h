@@ -43,7 +43,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
-	
+
 	float GetHealth();
 	float GetHealthMax();
+
+	bool Kill(AActor* InstigatorActor);
 };

@@ -97,3 +97,17 @@ void ASGameModeBase::OnQueryFinished(UEnvQueryInstanceBlueprintWrapper* QueryIns
 		20.0f
 	);
 }
+
+void ASGameModeBase::KillAll()
+{
+	for (TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
+	{
+		ASAICharacter* Bot = *It;
+
+		USAttributeComponent* AIAttributeComp = USAttributeComponent::GetAttributeComp(Bot);
+		if (ensure(AIAttributeComp) && AIAttributeComp->GetHealth() > 0.0f)
+		{
+			AIAttributeComp->Kill(this); // @fix: pass in character as the argument for in game credits?
+		}
+	}
+}
