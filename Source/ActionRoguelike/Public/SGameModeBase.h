@@ -26,24 +26,51 @@ public:
 	UFUNCTION(Exec)
 	void KillAll();
 
+	virtual void OnActorKilled(AActor* Victim, AActor* Killer);
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TSubclassOf<AActor> MinionClass;
+	
+	/** Used TArray Instead, leaving commented for consideration **/
+	/*UPROPERTY(EditDefaultsOnly, Category = "Pickups")
+	TSubclassOf<AActor> HealthPotionClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
+	TSubclassOf<AActor> CoinClass;*/
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
+	TArray<TSubclassOf<AActor>> PickupClassArray;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	UEnvQuery* SpawnBotQuery;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
+	UEnvQuery* SpawnPickupQuery;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	UCurveFloat* DifficultyCurve;
 
 	FTimerHandle TimerHandle_SpawnBots;
+	FTimerHandle TimerHandle_SpawnPickups;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	float SpawnTimerInterval;
-	
+	float SpawnTimerInterval_Bots;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
+	float SpawnTimerInterval_Pickups;
+
 	void SpawnBotTimerElapsed();
+	void SpawnPickupTimerElapsed();
+
 
 	UFUNCTION()
-	void OnQueryFinished(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+	void OnQueryFinished_Bot(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+	UFUNCTION()
+	void OnQueryFinished_Pickup(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+	UFUNCTION()
+	void RespawnPlayerElapsed(AController* Controller);
 };

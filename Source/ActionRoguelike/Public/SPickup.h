@@ -20,7 +20,6 @@ public:
 	// Sets default values for this actor's properties
 	ASPickup();
 
-
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -28,4 +27,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* StaticMesh;
+
+	void Reactivate();
+	void Deactivate();
 };

@@ -16,4 +16,12 @@ ASPickup::ASPickup()
 	StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+void ASPickup::Reactivate()
+{
+	StaticMesh->SetVisibility(true);
+}
 
+void ASPickup::Deactivate()
+{
+	StaticMesh->SetVisibility(false);
+}

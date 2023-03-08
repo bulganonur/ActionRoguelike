@@ -215,6 +215,14 @@ void ASCharacter::PrimaryInteract()
 }
 
 
+void ASCharacter::GetActorEyesViewPoint(FVector& Location, FRotator& Rotation) const
+{
+	Super::GetActorEyesViewPoint(Location, Rotation);
+
+	Location = CameraComp->GetComponentLocation();
+}
+
+
 void ASCharacter::OnHealtChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
 	if (Delta < 0.0f)

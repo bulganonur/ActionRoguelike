@@ -80,6 +80,7 @@ protected:
 	void DashAbility_TimeElapsed_SpawnProjectile();
 
 	void PrimaryInteract();
+	virtual void GetActorEyesViewPoint(FVector& Location, FRotator& Rotation) const override;
 
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 

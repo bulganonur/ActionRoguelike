@@ -14,10 +14,18 @@ class ACTIONROGUELIKE_API USBTService_CheckHealth : public UBTService
 {
 	GENERATED_BODY()
 
+public:
+	
+	USBTService_CheckHealth();
+
+
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "AI")
 	FBlackboardKeySelector HealthThresholdKey;
+
+	UPROPERTY(EditAnywhere, Category = "AI")
+	float LowHealthFraction;
 
 
 	/** update next tick interval

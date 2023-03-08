@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "SAttributeComponent.h"
+#include "SGameplayFunctionLibrary.h"
 
 ASMagicProjectile::ASMagicProjectile()
 {
@@ -19,16 +20,13 @@ void ASMagicProjectile::OnComponentHit(UPrimitiveComponent* HitComponent, AActor
 {
 	if (OtherActor)
 	{
-		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
-		if (AttributeComp)
-		{
-			AttributeComp->ApplyHealthChange(GetInstigator(), -Damage);
+		USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, Hit);
 
-		}
 		if (OtherActor->HasActiveCameraComponent())
 		{
 			UGameplayStatics::PlayWorldCameraShake(this, CamShake, Hit.ImpactPoint, 0.0f, 400.0f);
 		}
+		
 		DrawDebugSphere
 		(
 			GetWorld(),

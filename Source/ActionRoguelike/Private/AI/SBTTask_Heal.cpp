@@ -16,7 +16,7 @@ EBTNodeResult::Type USBTTask_Heal::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		ASAICharacter* AIChar = Cast<ASAICharacter>(AICont->GetPawn());
 		if (AIChar)
 		{
-			USAttributeComponent* AIAttributeComp = Cast<USAttributeComponent>(AIChar->GetComponentByClass(USAttributeComponent::StaticClass()));
+			USAttributeComponent* AIAttributeComp = USAttributeComponent::GetAttributeComp(AIChar);
 			if (AIAttributeComp)
 			{
 				AIAttributeComp->ApplyHealthChange(AIChar, AIAttributeComp->GetHealthMax());

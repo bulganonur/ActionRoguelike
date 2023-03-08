@@ -19,14 +19,14 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Potion Attributes")
 	float HealAmount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Potion Attributes")
+	float CreditsCost;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Potion Attributes")
 	float ReactivateDelay;
 
 	FTimerHandle TimerHandle_Reactivate;
-
-	void Reactivate();
-	void Deactivate();
 
 public:
 	
