@@ -58,18 +58,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	float SpawnTimerInterval_Bots;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Pickups")
-	float SpawnTimerInterval_Pickups;
-
 	void SpawnBotTimerElapsed();
-	void SpawnPickupTimerElapsed();
+	void SpawnPickup();
 
-
-	UFUNCTION()
-	void OnQueryFinished_Bot(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
-
-	UFUNCTION()
-	void OnQueryFinished_Pickup(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+	void OnQueryFinished_Bot(TSharedPtr<FEnvQueryResult> Result);
+	void OnQueryFinished_Pickup(TSharedPtr<FEnvQueryResult> Result);
 
 	UFUNCTION()
 	void RespawnPlayerElapsed(AController* Controller);

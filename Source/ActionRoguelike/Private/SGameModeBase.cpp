@@ -19,10 +19,10 @@ static TAutoConsoleVariable<bool> CVarSpanwBots(TEXT("su.SpawnBots"), true, TEXT
 ASGameModeBase::ASGameModeBase()
 {
 	SpawnTimerInterval_Bots = 2.0f;
-	SpawnTimerInterval_Pickups = 0.5f;
 
 	PickupClassArray.SetNum(2);
 }
+
 
 void ASGameModeBase::StartPlay()
 {
@@ -33,9 +33,11 @@ void ASGameModeBase::StartPlay()
 	 * Actual amount of bots and whether it is allowed to spawn determined by the spawn logic later in the chain
 	 */
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval_Bots, true);
-	GetWorldTimerManager().SetTimer(TimerHandle_SpawnPickups, this, &ASGameModeBase::SpawnPickupTimerElapsed, SpawnTimerInterval_Pickups);
-
+	
+	
+	SpawnPickup();
 }
+
 
 void ASGameModeBase::SpawnBotTimerElapsed()
 {
@@ -45,11 +47,10 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 		return;
 	}
 	
-	int32 NumOfAliveBots = 0;
-	for (TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
-	{
-		ASAICharacter* Bot = *It;
 
+	int32 NumOfAliveBots = 0;
+	for (ASAICharacter* Bot : TActorRange<ASAICharacter>(GetWorld()))
+	{
 		USAttributeComponent* AIAttributeComp = USAttributeComponent::GetAttributeComp(Bot);
 		if (ensure(AIAttributeComp) && AIAttributeComp->GetHealth() > 0.0f)
 		{
@@ -74,32 +75,31 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 	}
 	
 
-	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
-	if (ensure(QueryInstance))
-	{
-		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ASGameModeBase::OnQueryFinished_Bot);
-	}
+	FEnvQueryRequest Request(SpawnBotQuery, this);
+	Request.Execute(EEnvQueryRunMode::RandomBest5Pct, this, &ASGameModeBase::OnQueryFinished_Bot);
 }
 
-void ASGameModeBase::SpawnPickupTimerElapsed()
+
+void ASGameModeBase::SpawnPickup()
 {
-	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnPickupQuery, this, EEnvQueryRunMode::AllMatching, nullptr);
-	if (ensure(QueryInstance))
-	{
-		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ASGameModeBase::OnQueryFinished_Pickup);
-	}
+	FEnvQueryRequest Request(SpawnPickupQuery, this);
+	Request.Execute(EEnvQueryRunMode::AllMatching, this, &ASGameModeBase::OnQueryFinished_Pickup);
 }
 
-void ASGameModeBase::OnQueryFinished_Bot(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
+
+void ASGameModeBase::OnQueryFinished_Bot(TSharedPtr<FEnvQueryResult> Result)
 {
-	if (QueryStatus != EEnvQueryStatus::Success)
+	FEnvQueryResult* QueryResult = Result.Get();
+
+	if (!QueryResult->IsSuccsessful())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Spawn Bot EQS Query Failed!"));
 		return;
 	}
 
 
-	TArray<FVector> QueryLocations = QueryInstance->GetResultsAsLocations();
+	TArray<FVector> QueryLocations;
+	QueryResult->GetAllAsLocations(QueryLocations);
 
 	if (QueryLocations.Num() <= 0)
 	{
@@ -107,7 +107,9 @@ void ASGameModeBase::OnQueryFinished_Bot(UEnvQueryInstanceBlueprintWrapper* Quer
 		return;
 	}
 
+
 	GetWorld()->SpawnActor<AActor>(MinionClass, QueryLocations[0], FRotator::ZeroRotator);
+
 
 	DrawDebugBox
 	(
@@ -122,20 +124,25 @@ void ASGameModeBase::OnQueryFinished_Bot(UEnvQueryInstanceBlueprintWrapper* Quer
 	);
 }
 
-void ASGameModeBase::OnQueryFinished_Pickup(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
+
+void ASGameModeBase::OnQueryFinished_Pickup(TSharedPtr<FEnvQueryResult> Result)
 {
-	if (QueryStatus != EEnvQueryStatus::Success)
+	FEnvQueryResult* QueryResult = Result.Get();
+	
+	if (!QueryResult->IsSuccsessful())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Spawn Pickups EQS Query Failed!"));
 		return;
 	}
 
 
-	TArray<FVector> QueryLocations = QueryInstance->GetResultsAsLocations();
+	TArray<FVector> QueryLocations;
+	QueryResult->GetAllAsLocations(QueryLocations);
 	
-	for (int32 i = 0; i < QueryLocations.Num(); ++i)
+
+	for (FVector QLocation : QueryLocations)
 	{
-		UE_LOG(LogTemp, Log, TEXT("QL[%i]: %s"), i, *QueryLocations[i].ToString());
+		UE_LOG(LogTemp, Log, TEXT("QL: %s"), *QLocation.ToString());
 	}
 
 	if (QueryLocations.Num() <= 0)
@@ -144,16 +151,16 @@ void ASGameModeBase::OnQueryFinished_Pickup(UEnvQueryInstanceBlueprintWrapper* Q
 		return;
 	}
 
-	for (int32 i = 0; i < QueryLocations.Num(); ++i)
+	for (FVector QLocation : QueryLocations)
 	{
 		int32 RndPickup = FMath::RandRange(0, 1);
 		
-		GetWorld()->SpawnActor<AActor>(PickupClassArray[RndPickup], QueryLocations[i], FRotator::ZeroRotator);
+		GetWorld()->SpawnActor<AActor>(PickupClassArray[RndPickup], QLocation, FRotator::ZeroRotator);
 
 		DrawDebugBox
 		(
 			GetWorld(),
-			QueryLocations[i],
+			QLocation,
 			FVector(200.0f),
 			FColor::Purple,
 			false,
@@ -163,6 +170,7 @@ void ASGameModeBase::OnQueryFinished_Pickup(UEnvQueryInstanceBlueprintWrapper* Q
 		);
 	}
 }
+
 
 void ASGameModeBase::KillAll()
 {
@@ -177,6 +185,7 @@ void ASGameModeBase::KillAll()
 		}
 	}
 }
+
 
 void ASGameModeBase::OnActorKilled(AActor* Victim, AActor* Killer)
 {
@@ -204,6 +213,7 @@ void ASGameModeBase::OnActorKilled(AActor* Victim, AActor* Killer)
 
 	UE_LOG(LogTemp, Warning, TEXT("OnActorKilled! Victim: %s, Killer: %s"), *GetNameSafe(Victim), *GetNameSafe(Killer));
 }
+
 
 void ASGameModeBase::RespawnPlayerElapsed(AController* Controller)
 {

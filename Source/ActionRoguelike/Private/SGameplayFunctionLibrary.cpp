@@ -26,7 +26,11 @@ bool USGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, AAc
 		{
 			float ImpulseStrength = CVarImpulseStrength.GetValueOnGameThread();
 
-			HitComp->AddImpulseAtLocation(-HitResult.ImpactNormal * ImpulseStrength * 250000.0f, HitResult.ImpactPoint, HitResult.BoneName);
+			/** Direction = Target - Origin */
+			FVector Direction = HitResult.TraceEnd - HitResult.TraceStart;
+			Direction.Normalize();
+
+			HitComp->AddImpulseAtLocation(Direction * ImpulseStrength * 250000.0f, HitResult.ImpactPoint, HitResult.BoneName);
 
 			return true;
 		}

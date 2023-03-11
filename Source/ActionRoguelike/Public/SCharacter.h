@@ -7,6 +7,7 @@
 #include "SCharacter.generated.h"
 
 class UCameraComponent;
+class USActionComponent;
 class USAttributeComponent;
 class USInteractionComponent;
 class USpringArmComponent;
@@ -17,35 +18,7 @@ class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-protected:
 
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> MagicProjectileClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> DarkholeProjectileClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> DashProjectileClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	UAnimMontage* AttackAnim;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	UParticleSystem* VFX_MuzzleFlash_PrimaryAttack;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	UParticleSystem* VFX_MuzzleFlash_Dash;
-
-	UPROPERTY(VisibleAnywhere, Category = "Attack")
-	FName RHandMuzzleSocket;
-
-	float AttackAnimDelay;
-
-	FTimerHandle TimerHandle_PrimaryAttack;
-	FTimerHandle TimerHandle_UltimateAttack;
-	FTimerHandle TimerHandle_Dash;
-	
 public:
 	// Sets default values for this character's properties
 	ASCharacter();
@@ -53,6 +26,8 @@ public:
 protected:
 
 	virtual void PostInitializeComponents() override;
+
+	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
@@ -66,23 +41,23 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USAttributeComponent* AttributeComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USActionComponent* ActionComp;
+
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 
+	void SprintStart();
+	void SprintStop();
+
 	void PrimaryAttack();
-	void PrimaryAttack_TimeElapsed();
-
 	void UltimateAttack();
-	void UltimateAttack_TimeElapsed();
-
 	void DashAbility();
-	void DashAbility_TimeElapsed_SpawnProjectile();
-
+	
 	void PrimaryInteract();
-	virtual void GetActorEyesViewPoint(FVector& Location, FRotator& Rotation) const override;
-
-	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
+	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& Rotation) const override;
+	virtual FVector GetPawnViewLocation() const override;
 
 	UFUNCTION()
 	void OnHealtChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
