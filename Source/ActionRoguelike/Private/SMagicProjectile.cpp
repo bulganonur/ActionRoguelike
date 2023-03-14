@@ -3,34 +3,47 @@
 
 #include "SMagicProjectile.h"
 #include "Components/SphereComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SGameplayFunctionLibrary.h"
 
 ASMagicProjectile::ASMagicProjectile()
 {
-	SphereComp->OnComponentHit.AddDynamic(this, &ASMagicProjectile::OnComponentHit);
+	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnComponentBeginOverlap);
 	
 	Damage = 20.0f;
 }
 
 
-void ASMagicProjectile::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASMagicProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor)
+	if (OtherActor && OtherActor != GetInstigator())
 	{
-		USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, Hit);
+		USActionComponent* ActionComp = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
+		if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(FGameplayTag::RequestGameplayTag("Status.Parrying")))
+		{
+			MovementComp->Velocity = -(MovementComp->Velocity);
+			SetInstigator(Cast<APawn>(OtherActor));
+			return;
+		}
+
+		USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
 
 		if (OtherActor->HasActiveCameraComponent())
 		{
-			UGameplayStatics::PlayWorldCameraShake(this, CamShake, Hit.ImpactPoint, 0.0f, 400.0f);
+			UGameplayStatics::PlayWorldCameraShake(this, CamShake, SweepResult.ImpactPoint, 0.0f, 400.0f);
 		}
-		
+
+		Explode();
+
+
 		DrawDebugSphere
 		(
 			GetWorld(),
-			Hit.ImpactPoint,
+			SweepResult.ImpactPoint,
 			400.0f,
 			36,
 			FColor::Blue,

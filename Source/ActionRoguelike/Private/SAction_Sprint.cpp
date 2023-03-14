@@ -9,7 +9,9 @@ USAction_Sprint::USAction_Sprint()
 {
 	SprintBonus = 2000.0f;
 	ActionName = "Sprint";
-
+	
+	GrantedTags.AddTag(FGameplayTag::RequestGameplayTag("Action.Sprinting"));
+	BlockedTags.AddTag(FGameplayTag::RequestGameplayTag("Action.Attacking"));
 }
 
 
@@ -35,5 +37,3 @@ void USAction_Sprint::StopAction(AActor* Instigator)
 		MoveComp->MaxWalkSpeed -= SprintBonus;
 	}
 }
-
-

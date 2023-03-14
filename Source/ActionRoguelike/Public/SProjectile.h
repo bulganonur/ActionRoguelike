@@ -40,13 +40,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "SFX")
 	USoundBase* SFX_Impact;
 	
-	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Explode();
-
-	virtual void PostInitializeComponents() override;
+	virtual void Explode();
 
 	virtual void BeginPlay() override;
 };

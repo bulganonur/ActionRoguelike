@@ -10,6 +10,7 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/PawnSensingComponent.h"
+#include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SWorldUserWidget.h"
 
@@ -17,6 +18,8 @@
 ASAICharacter::ASAICharacter()
 {
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComp"));
+
+	ActionComp = CreateDefaultSubobject<USActionComponent>(TEXT("ActionComp"));
 	
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 

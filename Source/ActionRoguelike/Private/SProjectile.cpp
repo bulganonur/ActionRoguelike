@@ -29,13 +29,6 @@ ASProjectile::ASProjectile()
 }
 
 
-void ASProjectile::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-	
-	SphereComp->OnComponentHit.AddDynamic(this, &ASProjectile::OnHit);
-}
-
 void ASProjectile::BeginPlay()
 {
 	Super::BeginPlay();
@@ -44,13 +37,7 @@ void ASProjectile::BeginPlay()
 }
 
 
-void ASProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	Explode();
-}
-
-
-void ASProjectile::Explode_Implementation()
+void ASProjectile::Explode()
 {
 	if (ensure(!IsPendingKill()))
 	{

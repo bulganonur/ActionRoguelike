@@ -18,7 +18,7 @@ public:
 protected:
 
 	float SprintBonus;
-	
+
 	void StartAction(AActor* Instigator) override;
 	
 	void StopAction(AActor* Instigator) override;

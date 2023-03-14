@@ -7,6 +7,7 @@
 #include "SAICharacter.generated.h"
 
 class UPawnSensingComponent;
+class USActionComponent;
 class USAttributeComponent;
 class USWorldUserWidget;
 class UUserWidget;
@@ -34,6 +35,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USAttributeComponent* AttributeComp;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USActionComponent* ActionComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComp;
