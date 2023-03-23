@@ -44,6 +44,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USActionComponent* ActionComp;
 
+	UPROPERTY(EditDefaultsOnly)
+	float RageIncreasePercent;
+
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);

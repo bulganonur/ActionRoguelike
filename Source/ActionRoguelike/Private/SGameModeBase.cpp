@@ -21,6 +21,8 @@ ASGameModeBase::ASGameModeBase()
 	SpawnTimerInterval_Bots = 2.0f;
 
 	PickupClassArray.SetNum(2);
+
+	CreditsPerKill = 1.0f;
 }
 
 
@@ -32,14 +34,14 @@ void ASGameModeBase::StartPlay()
 	 * Continuous timer to spawn in more bots
 	 * Actual amount of bots and whether it is allowed to spawn determined by the spawn logic later in the chain
 	 */
-	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval_Bots, true);
+	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameModeBase::RunQuery_SpawnBot, SpawnTimerInterval_Bots, true);
 	
 	
-	SpawnPickup();
+	RunQuery_SpawnPickup();
 }
 
 
-void ASGameModeBase::SpawnBotTimerElapsed()
+void ASGameModeBase::RunQuery_SpawnBot()
 {
 	if (!CVarSpanwBots.GetValueOnGameThread())
 	{
@@ -80,7 +82,7 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 }
 
 
-void ASGameModeBase::SpawnPickup()
+void ASGameModeBase::RunQuery_SpawnPickup()
 {
 	FEnvQueryRequest Request(SpawnPickupQuery, this);
 	Request.Execute(EEnvQueryRunMode::AllMatching, this, &ASGameModeBase::OnQueryFinished_Pickup);
@@ -207,7 +209,7 @@ void ASGameModeBase::OnActorKilled(AActor* Victim, AActor* Killer)
 		ASPlayerState* PlayerState = PlayerChar->GetPlayerState<ASPlayerState>();
 		if (PlayerState)
 		{
-			PlayerState->SetCredits(1.0f);
+			PlayerState->SetCredits(CreditsPerKill);
 		}
 	}
 

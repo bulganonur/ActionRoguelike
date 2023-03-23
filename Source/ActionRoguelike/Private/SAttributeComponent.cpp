@@ -12,6 +12,8 @@ USAttributeComponent::USAttributeComponent()
 {
 	HealthMax = 100.0f;
 	Health = HealthMax;	
+
+	RageMax = 20.0f;
 }
 
 bool USAttributeComponent::IsAlive() const
@@ -30,14 +32,33 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
 	return false;
 }
 
-float USAttributeComponent::GetHealth()
+float USAttributeComponent::GetHealth() const
 {
 	return Health;
 }
 
-float USAttributeComponent::GetHealthMax()
+float USAttributeComponent::GetHealthMax() const
 {
 	return HealthMax;
+}
+
+float USAttributeComponent::GetRage() const
+{
+	return Rage;
+}
+
+float USAttributeComponent::GetRageMax() const
+{
+	return RageMax;
+}
+
+void USAttributeComponent::SetRage(float Delta)
+{
+	Rage = FMath::Clamp(Rage - Delta, 0.0f, RageMax);
+
+	OnRageChanged.Broadcast(GetOwner(), this, Rage, Delta);
+
+	UE_LOG(LogTemp, Warning, TEXT("DELTA: %f, RAGE: %f"), Delta, Rage);
 }
 
 bool USAttributeComponent::Kill(AActor* InstigatorActor)

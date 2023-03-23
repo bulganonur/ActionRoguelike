@@ -23,15 +23,19 @@ public:
 
 protected:
 	
+	virtual void PostInitializeComponents() override;
+
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> HealthBarWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PlayerSpottedWidgetClass;
 
 	UPROPERTY()
 	USWorldUserWidget* ActiveHealthBar;
 
-	virtual void PostInitializeComponents() override;
-
-	void SetTargetActor(AActor* NewTarget);
+	UPROPERTY()
+	USWorldUserWidget* PlayerSpottedWidget;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USAttributeComponent* AttributeComp;
@@ -41,6 +45,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComp;
+	
+	void SetTargetActor(AActor* NewTarget);
+
+	void RemoveWidget();
 
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);

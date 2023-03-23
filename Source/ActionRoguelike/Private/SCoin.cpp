@@ -6,7 +6,7 @@
 
 ASCoin::ASCoin()
 {
-	CoinIncrease = 1.0f;
+	CreditsIncrease = 1.0f;
 	ReactivateDelay = 2.0f;
 }
 
@@ -17,7 +17,7 @@ void ASCoin::Interact_Implementation(APawn* InstigatorPawn)
 		ASPlayerState* PlayerState = InstigatorPawn->GetPlayerState<ASPlayerState>();
 		if (PlayerState && StaticMesh->IsVisible())
 		{
-			PlayerState->SetCredits(CoinIncrease);
+			PlayerState->SetCredits(CreditsIncrease);
 
 			Deactivate();
 

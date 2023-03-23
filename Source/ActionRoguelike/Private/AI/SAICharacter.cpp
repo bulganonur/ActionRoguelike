@@ -14,6 +14,7 @@
 #include "SAttributeComponent.h"
 #include "SWorldUserWidget.h"
 
+
 // Sets default values
 ASAICharacter::ASAICharacter()
 {
@@ -28,6 +29,7 @@ ASAICharacter::ASAICharacter()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 	GetMesh()->SetGenerateOverlapEvents(true);
 }
+
 
 void ASAICharacter::PostInitializeComponents()
 {
@@ -95,9 +97,29 @@ void ASAICharacter::SetTargetActor(AActor* NewTarget)
 }
 
 
+void ASAICharacter::RemoveWidget()
+{
+	if (PlayerSpottedWidget)
+	{
+		PlayerSpottedWidget->RemoveFromParent();
+	}
+}
+
+
 void ASAICharacter::OnSeePawn(APawn* Pawn)
 {
 	SetTargetActor(Pawn);
+	if (PlayerSpottedWidget == nullptr)
+	{
+		PlayerSpottedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), PlayerSpottedWidgetClass);
+		if (PlayerSpottedWidget)
+		{
+			PlayerSpottedWidget->AttachedActor = this;
+			PlayerSpottedWidget->AddToViewport();
+			FTimerHandle TimerHandle_PlayerSpottedDelay;
+			GetWorldTimerManager().SetTimer(TimerHandle_PlayerSpottedDelay, this, &ASAICharacter::RemoveWidget, 3.0f);
+		}
+	}
 
 	DrawDebugString
 	(
@@ -110,9 +132,3 @@ void ASAICharacter::OnSeePawn(APawn* Pawn)
 		true
 	);
 }
-
-
-
-
-
-

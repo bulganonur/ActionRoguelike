@@ -11,37 +11,29 @@
 ASHealthPotion::ASHealthPotion()
 {
 	HealAmount = 20.0f;
-	CreditsCost = -1.0f;
+	CreditsCost = 1.0f;
 	ReactivateDelay = 3.0f;
 }
 
 
 void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 {
-	
 	if (ensure(InstigatorPawn))
 	{
 		USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributeComp(InstigatorPawn);
-		if (ensure(AttributeComp))
+		if (ensure(AttributeComp) && AttributeComp->GetHealth() < AttributeComp->GetHealthMax() && StaticMesh->IsVisible())
 		{
-			if (AttributeComp->GetHealth() < AttributeComp->GetHealthMax() && StaticMesh->IsVisible())
+			ASPlayerState* PlayerState = InstigatorPawn->GetPlayerState<ASPlayerState>();
+			if (PlayerState && PlayerState->GetCredits() >= CreditsCost)
 			{
-				ASPlayerState* PlayerState = InstigatorPawn->GetPlayerState<ASPlayerState>();
-				if (PlayerState)
-				{
-					if (PlayerState->GetCredits() > 0.0f)
-					{
-						AttributeComp->ApplyHealthChange(this, HealAmount);
+				AttributeComp->ApplyHealthChange(this, HealAmount);
 				
-						PlayerState->SetCredits(CreditsCost);
+				PlayerState->SetCredits(-CreditsCost);
 						
-						Deactivate();
+				Deactivate();
 				
-						GetWorldTimerManager().SetTimer(TimerHandle_Reactivate, this, &ASHealthPotion::Reactivate, ReactivateDelay);
-						UE_LOG(LogTemp, Warning, TEXT("INTERACTION !!!"));
-
-					}
-				}
+				GetWorldTimerManager().SetTimer(TimerHandle_Reactivate, this, &ASHealthPotion::Reactivate, ReactivateDelay);
+				UE_LOG(LogTemp, Warning, TEXT("INTERACTION !!!"));
 			}
 		}
 	}

@@ -6,6 +6,9 @@
 #include "SProjectile.h"
 #include "SMagicProjectile.generated.h"
 
+
+class USActionEffect;
+
 UCLASS()
 class ACTIONROGUELIKE_API ASMagicProjectile : public ASProjectile
 {
@@ -25,4 +28,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UCameraShakeBase> CamShake;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+	TSubclassOf<USActionEffect> BurningEffectClass;
 };

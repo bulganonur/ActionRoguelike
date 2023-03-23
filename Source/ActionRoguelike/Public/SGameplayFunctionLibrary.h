@@ -6,9 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "SGameplayFunctionLibrary.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class ACTIONROGUELIKE_API USGameplayFunctionLibrary : public UBlueprintFunctionLibrary
 {

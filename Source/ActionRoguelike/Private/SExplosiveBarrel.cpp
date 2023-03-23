@@ -32,7 +32,7 @@ void ASExplosiveBarrel::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	
-	StaticMesh->OnComponentHit.AddDynamic(this, &ASExplosiveBarrel::OnComponentHit);
+	StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ASExplosiveBarrel::OnComponentBeginOverlap);
 }
 
 
@@ -51,24 +51,23 @@ void ASExplosiveBarrel::Tick(float DeltaTime)
 }
 
 
-void ASExplosiveBarrel::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASExplosiveBarrel::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
-	FString DebugText = FString::Printf(TEXT("Impact Point: %s"), *Hit.ImpactPoint.ToString());
-	
+	FString DebugText = FString::Printf(TEXT("Impact Point: %s"), *SweepResult.ImpactPoint.ToString());
+
 	DrawDebugString
 	(
 		GetWorld(),
-		Hit.ImpactPoint,
+		SweepResult.ImpactPoint,
 		DebugText,
 		nullptr,
 		FColor::Green,
 		1.0f,
 		true
 	);
-	
+
 	APawn* TestPawn = Cast<APawn>(OtherActor);
-	
+
 	if (!TestPawn)
 	{
 		RadialForce->FireImpulse();

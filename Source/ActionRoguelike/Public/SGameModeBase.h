@@ -58,12 +58,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	float SpawnTimerInterval_Bots;
 
-	void SpawnBotTimerElapsed();
-	void SpawnPickup();
+	void RunQuery_SpawnBot();
+	void RunQuery_SpawnPickup();
 
 	void OnQueryFinished_Bot(TSharedPtr<FEnvQueryResult> Result);
 	void OnQueryFinished_Pickup(TSharedPtr<FEnvQueryResult> Result);
 
 	UFUNCTION()
 	void RespawnPlayerElapsed(AController* Controller);
+
+	float CreditsPerKill;
 };

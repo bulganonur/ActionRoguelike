@@ -41,6 +41,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FName ActionName;
 
+	/** Start immediately when added to an action component */
+	UPROPERTY(EditDefaultsOnly, Category = "Action")
+	bool bIsAutoStartOn;
+
 protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Action")

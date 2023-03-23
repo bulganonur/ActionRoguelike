@@ -34,6 +34,8 @@ ASCharacter::ASCharacter()
 	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
+
+	RageIncreasePercent = 0.5f;
 }
 
 
@@ -48,8 +50,6 @@ void ASCharacter::PostInitializeComponents()
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	ActionComp->AddAction(USAction_Sprint::StaticClass());
 }
 
 
@@ -166,6 +166,8 @@ void ASCharacter::OnHealtChanged(AActor* InstigatorActor, USAttributeComponent* 
 				DisableInput(PC);
 			}
 		}
+		
+		AttributeComp->SetRage(Delta * RageIncreasePercent);
 	}
 }
 

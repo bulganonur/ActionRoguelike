@@ -7,6 +7,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "SActionComponent.h"
+#include "SActionEffect.h"
 #include "SAttributeComponent.h"
 #include "SGameplayFunctionLibrary.h"
 
@@ -32,6 +33,11 @@ void ASMagicProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 
 		USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
 
+		if (ActionComp)
+		{
+			ActionComp->AddAction(GetInstigator(), BurningEffectClass);
+		}
+		
 		if (OtherActor->HasActiveCameraComponent())
 		{
 			UGameplayStatics::PlayWorldCameraShake(this, CamShake, SweepResult.ImpactPoint, 0.0f, 400.0f);

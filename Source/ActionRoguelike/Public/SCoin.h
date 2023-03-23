@@ -6,20 +6,19 @@
 #include "SPickup.h"
 #include "SCoin.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class ACTIONROGUELIKE_API ASCoin : public ASPickup
 {
 	GENERATED_BODY()
+
 public:
 	ASCoin();
 
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Coin Attributes")
-	float CoinIncrease;
+	float CreditsIncrease;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Coin Attributes")
 	float ReactivateDelay;

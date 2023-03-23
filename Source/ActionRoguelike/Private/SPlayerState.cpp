@@ -6,9 +6,11 @@
 void ASPlayerState::SetCredits(float Delta)
 {
 	Credits += Delta;
+
+	OnCreditsChange.Broadcast(this, Credits, Delta);
 }
 
-float ASPlayerState::GetCredits()
+float ASPlayerState::GetCredits() const
 {
 	return Credits;
 }

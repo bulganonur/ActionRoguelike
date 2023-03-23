@@ -32,7 +32,7 @@ protected:
 
 	float ActionAnimDelay;
 
-	void StartAction(AActor* Instigator) override;
+	void virtual StartAction(AActor* Instigator) override;
 
 	UFUNCTION()
 	void SpawnProjectile(ACharacter* InstigatorChar);

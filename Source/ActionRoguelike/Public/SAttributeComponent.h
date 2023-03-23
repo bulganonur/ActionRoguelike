@@ -8,7 +8,7 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, InstigatorActor, USAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnRageChanged, AActor*, InstigatorActor, USAttributeComponent*, OwningComp, float, NewRage, float, Delta);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ACTIONROGUELIKE_API USAttributeComponent : public UActorComponent
@@ -33,10 +33,19 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
 	float HealthMax;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	float Rage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+	float RageMax;
+
 public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthChanged OnHealthChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnRageChanged OnRageChanged;
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
@@ -44,8 +53,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
 
-	float GetHealth();
-	float GetHealthMax();
+	float GetHealth() const;
+	float GetHealthMax() const;
+
+	float GetRage() const;
+	float GetRageMax() const;
+	void SetRage(float Delta);
 
 	bool Kill(AActor* InstigatorActor);
 };
