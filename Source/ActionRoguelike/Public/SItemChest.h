@@ -7,7 +7,9 @@
 #include "SGameplayInterface.h"
 #include "SItemChest.generated.h"
 
+
 class UStaticMeshComponent;
+
 
 UCLASS()
 class ACTIONROGUELIKE_API ASItemChest : public AActor, public ISGameplayInterface
@@ -16,7 +18,7 @@ class ACTIONROGUELIKE_API ASItemChest : public AActor, public ISGameplayInterfac
 
 	
 public:	
-	// Sets default values for this actor's properties
+	
 	ASItemChest();
 
 	void Interact_Implementation(APawn* InstigatorPawn);
@@ -24,18 +26,17 @@ public:
 	UPROPERTY(EditAnywhere)
 	float TargetPitch;
 
+	UPROPERTY(ReplicatedUsing = "OnRep_IsLidOpen") // RepNotify
+	bool bIsLidOpen;
+
+	UFUNCTION()
+	void OnRep_IsLidOpen();
+
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	
+
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* BaseMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* LidMesh;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 };

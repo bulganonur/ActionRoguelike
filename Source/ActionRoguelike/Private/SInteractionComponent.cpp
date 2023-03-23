@@ -7,30 +7,30 @@
 #include "SWorldUserWidget.h"
 
 
-
-// Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
 {
 	CollisionChannel = ECC_WorldDynamic;
 }
 
 
-// Called when the game starts
 void USInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	
 	
 }
 
 
-// Called every frame
 void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FindBestInteractable();
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (OwnerPawn->IsLocallyControlled())
+	{
+		FindBestInteractable();
+	}
 }
 
 
@@ -102,7 +102,13 @@ void USInteractionComponent::FindBestInteractable()
 
 void USInteractionComponent::PrimaryInteraction()
 {
-	if (FocusedActor == nullptr)
+	ServerInteract(FocusedActor);
+}
+
+
+void USInteractionComponent::ServerInteract_Implementation(AActor* InFocus)
+{
+	if (InFocus == nullptr)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "No focus actor to interact");
 		return;
@@ -110,5 +116,5 @@ void USInteractionComponent::PrimaryInteraction()
 
 	APawn* MyPawn = Cast<APawn>(GetOwner());
 
-	ISGameplayInterface::Execute_Interact(FocusedActor, MyPawn);
+	ISGameplayInterface::Execute_Interact(InFocus, MyPawn);
 }

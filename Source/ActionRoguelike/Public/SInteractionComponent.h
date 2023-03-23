@@ -20,12 +20,19 @@ public:
 	void PrimaryInteraction();
 
 public:	
-	// Sets default values for this component's properties
+	
 	USInteractionComponent();
 
 protected:
-	// Called when the game starts
+	
 	virtual void BeginPlay() override;
+
+	/**
+	 * Reliable: Will always arrive, eventually.Request will be re-sent unless an acknowledgement was received.
+	 * Unreliable: Not guaranteed, packet can get lost and won't retry.
+	 */
+	UFUNCTION(Server, Reliable)
+	void ServerInteract(AActor* InFocus);
 
 	void FindBestInteractable();
 
