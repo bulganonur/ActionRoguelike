@@ -14,6 +14,8 @@ ASPickup::ASPickup()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	StaticMesh->SetupAttachment(RootComponent);
 	StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	SetReplicates(true);
 }
 
 void ASPickup::Reactivate()

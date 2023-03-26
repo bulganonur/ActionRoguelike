@@ -2,24 +2,29 @@
 
 
 #include "SAttributeComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "SGameModeBase.h"
 
 
 static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.0f, TEXT("Global damage multiplier for Attribute Component"), ECVF_Cheat);
 
-// Sets default values for this component's properties
+
 USAttributeComponent::USAttributeComponent()
 {
 	HealthMax = 100.0f;
 	Health = HealthMax;	
 
 	RageMax = 20.0f;
+
+	SetIsReplicatedByDefault(true);
 }
+
 
 bool USAttributeComponent::IsAlive() const
 {
 	return Health > 0.0f;
 }
+
 
 bool USAttributeComponent::IsActorAlive(AActor* Actor)
 {
@@ -32,25 +37,30 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
 	return false;
 }
 
+
 float USAttributeComponent::GetHealth() const
 {
 	return Health;
 }
+
 
 float USAttributeComponent::GetHealthMax() const
 {
 	return HealthMax;
 }
 
+
 float USAttributeComponent::GetRage() const
 {
 	return Rage;
 }
 
+
 float USAttributeComponent::GetRageMax() const
 {
 	return RageMax;
 }
+
 
 void USAttributeComponent::SetRage(float Delta)
 {
@@ -61,10 +71,12 @@ void USAttributeComponent::SetRage(float Delta)
 	UE_LOG(LogTemp, Warning, TEXT("DELTA: %f, RAGE: %f"), Delta, Rage);
 }
 
+
 bool USAttributeComponent::Kill(AActor* InstigatorActor)
 {
 	return ApplyHealthChange(InstigatorActor, -HealthMax);
 }
+
 
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
@@ -83,7 +95,12 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 	
 	Health = FMath::Clamp(Health + Delta, 0.0f, HealthMax);
 
-	OnHealthChanged.Broadcast(InstigatorActor, this, Health, Delta);
+	//OnHealthChanged.Broadcast(InstigatorActor, this, Health, Delta);
+
+	if (Health != 0.0f)
+	{
+		MulticastHealthChanged(InstigatorActor, Health, Delta);
+	}
 
 	if (Delta < 0.0f && Health <= 0.0f)
 	{
@@ -99,6 +116,13 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 	return true;
 }
 
+
+void USAttributeComponent::MulticastHealthChanged_Implementation(AActor* InstigatorActor, float NewHealth, float Delta)
+{
+	OnHealthChanged.Broadcast(InstigatorActor, this, NewHealth, Delta);
+}
+
+
 USAttributeComponent* USAttributeComponent::GetAttributeComp(AActor* FromActor)
 {
 	if (FromActor)
@@ -111,3 +135,10 @@ USAttributeComponent* USAttributeComponent::GetAttributeComp(AActor* FromActor)
 }
 
 
+void USAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USAttributeComponent, Health);
+	DOREPLIFETIME(USAttributeComponent, HealthMax);
+}

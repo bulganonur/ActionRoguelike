@@ -9,9 +9,8 @@ USActionComponent::USActionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
+	SetIsReplicatedByDefault(true);
 }
-
-
 
 
 void USActionComponent::BeginPlay()
@@ -65,6 +64,12 @@ void USActionComponent::RemoveAction(USAction* ActionClass)
 }
 
 
+void USActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName ActionName)
+{
+	StartActionByName(Instigator, ActionName);
+}
+
+
 bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 {
 	for (USAction* Action : Actions)
@@ -77,6 +82,13 @@ bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FailedMsg);
 				continue;
 			}
+
+			/** Is Client? */
+			if (!GetOwner()->HasAuthority())
+			{
+				ServerStartAction(Instigator, ActionName);
+			}
+			
 			Action->StartAction(Instigator);
 			return true;
 		}
