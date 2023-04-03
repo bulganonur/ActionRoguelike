@@ -2,7 +2,15 @@
 
 
 #include "SAction.h"
+#include "Net/UnrealNetwork.h"
 #include "SActionComponent.h"
+
+
+void USAction::Initialize(USActionComponent* NewActionComp)
+{
+	ActionComponent = NewActionComp;
+}
+
 
 bool USAction::CanStart(AActor* Instigator)
 {
@@ -34,7 +42,7 @@ void USAction::StopAction(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Log, TEXT("StopObj: %s"), *GetNameSafe(this));
 
-	ensureAlways(bIsActionRunning);
+	//ensureAlways(bIsActionRunning);
 
 	USActionComponent* ActionComp = GetOwningComponent();
 	ActionComp->ActiveGameplayTags.RemoveTags(GrantedTags);
@@ -42,6 +50,10 @@ void USAction::StopAction(AActor* Instigator)
 	bIsActionRunning = false;
 }
 
+bool USAction::IsSupportedForNetworking() const
+{
+	return true;
+}
 
 UWorld* USAction::GetWorld() const
 {
@@ -49,10 +61,10 @@ UWorld* USAction::GetWorld() const
 	 * Outer is set when creating Action via NewObject<T> in ActionComponent AddAction()
 	 * Without this overridden implementation, GetWorld() node in Blueprint will not be accessible
 	 */
-	UActorComponent* Comp = Cast<UActorComponent>(GetOuter());
-	if (Comp)
+	AActor* Actor = Cast<AActor>(GetOuter());
+	if (Actor)
 	{
-		return Comp->GetWorld();
+		return Actor->GetWorld();
 	}
 	
 	return nullptr;
@@ -60,12 +72,36 @@ UWorld* USAction::GetWorld() const
 
 USActionComponent* USAction::GetOwningComponent() const
 {
-	return Cast<USActionComponent>(GetOuter());
+	return ActionComponent;
 	
 }
 
+void USAction::OnRep_IsActionRunning()
+{
+	if (bIsActionRunning)
+	{
+		StartAction(nullptr);
+	}
+	else
+	{
+		StopAction(nullptr);
+	}
+}
 
 bool USAction::IsActionRunning() const
 {
 	return bIsActionRunning;
+}
+
+FGameplayTagContainer USAction::GetGrantedTags() const
+{
+	return GrantedTags;
+}
+
+void USAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USAction, bIsActionRunning);
+	DOREPLIFETIME(USAction, ActionComponent);
 }

@@ -43,7 +43,7 @@ void ASCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	AttributeComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealtChanged);
+	AttributeComp->OnHealthChange.AddDynamic(this, &ASCharacter::OnHealtChange);
 }
 
 
@@ -152,13 +152,13 @@ FVector ASCharacter::GetPawnViewLocation() const
 }
 
 
-void ASCharacter::OnHealtChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
+void ASCharacter::OnHealtChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewValue, float Delta)
 {
 	if (Delta < 0.0f)
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
 
-		if (NewHealth <= 0.0f)
+		if (NewValue <= 0.0f)
 		{
 			APlayerController* PC = Cast<APlayerController>(GetController());
 			if (PC)

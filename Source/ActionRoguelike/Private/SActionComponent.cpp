@@ -2,6 +2,8 @@
 
 
 #include "SActionComponent.h"
+#include "Engine/ActorChannel.h"
+#include "Net/UnrealNetwork.h"
 #include "SAction.h"
 
 
@@ -17,9 +19,13 @@ void USActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	for (TSubclassOf<USAction> ActionClass : DefaultActions)
+	/** Server only */
+	if (GetOwner()->HasAuthority())
 	{
-		AddAction(GetOwner(), ActionClass);
+		for (TSubclassOf<USAction> ActionClass : DefaultActions)
+		{
+			AddAction(GetOwner(), ActionClass);
+		}
 	}
 
 }
@@ -42,9 +48,11 @@ void USActionComponent::AddAction(AActor* Instigator, TSubclassOf<USAction> Acti
 		return;
 	}
 
-	USAction* NewAction = NewObject<USAction>(this, ActionClass);
+	USAction* NewAction = NewObject<USAction>(GetOwner(), ActionClass);
 	if (ensure(NewAction))
 	{
+		NewAction->Initialize(this);
+
 		Actions.Add(NewAction);
 
 		if (NewAction->bIsAutoStartOn && ensure(NewAction->CanStart(Instigator)))
@@ -111,7 +119,7 @@ bool USActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 			}
 		}
 	}
-
+	
 	return false;
 }
 
@@ -119,4 +127,28 @@ bool USActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 TArray<USAction*> USActionComponent::GetActions()
 {
 	return Actions;
+}
+
+
+bool USActionComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+	for (USAction* Action : Actions)
+	{
+		if (Action)
+		{
+			WroteSomething |= Channel->ReplicateSubobject(Action, *Bunch, *RepFlags);
+		}
+	}
+
+	return WroteSomething;
+}
+
+
+void USActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USActionComponent, Actions);
 }

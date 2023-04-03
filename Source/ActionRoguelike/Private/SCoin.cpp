@@ -19,9 +19,8 @@ void ASCoin::Interact_Implementation(APawn* InstigatorPawn)
 		{
 			PlayerState->SetCredits(CreditsIncrease);
 
-			Deactivate();
-
-			GetWorldTimerManager().SetTimer(TimerHandle_Reactivate, this, &ASCoin::Reactivate, ReactivateDelay);
+			HideAndCooldown();
+			
 			UE_LOG(LogTemp, Warning, TEXT("CREDITS: %f"), PlayerState->GetCredits());
 		}
 	}

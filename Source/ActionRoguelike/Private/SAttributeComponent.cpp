@@ -66,7 +66,9 @@ void USAttributeComponent::SetRage(float Delta)
 {
 	Rage = FMath::Clamp(Rage - Delta, 0.0f, RageMax);
 
-	OnRageChanged.Broadcast(GetOwner(), this, Rage, Delta);
+	//OnRageChange.Broadcast(GetOwner(), this, Rage, Delta);
+
+	MulticastOnRageChange(GetOwner(), Rage, Delta);
 
 	UE_LOG(LogTemp, Warning, TEXT("DELTA: %f, RAGE: %f"), Delta, Rage);
 }
@@ -76,6 +78,7 @@ bool USAttributeComponent::Kill(AActor* InstigatorActor)
 {
 	return ApplyHealthChange(InstigatorActor, -HealthMax);
 }
+
 
 
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
@@ -95,11 +98,11 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 	
 	Health = FMath::Clamp(Health + Delta, 0.0f, HealthMax);
 
-	//OnHealthChanged.Broadcast(InstigatorActor, this, Health, Delta);
+	//OnHealthChange.Broadcast(InstigatorActor, this, Health, Delta);
 
 	if (Health != 0.0f)
 	{
-		MulticastHealthChanged(InstigatorActor, Health, Delta);
+		MulticastOnHealthChange(InstigatorActor, Health, Delta);
 	}
 
 	if (Delta < 0.0f && Health <= 0.0f)
@@ -117,9 +120,15 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 }
 
 
-void USAttributeComponent::MulticastHealthChanged_Implementation(AActor* InstigatorActor, float NewHealth, float Delta)
+void USAttributeComponent::MulticastOnHealthChange_Implementation(AActor* InstigatorActor, float NewHealth, float Delta)
 {
-	OnHealthChanged.Broadcast(InstigatorActor, this, NewHealth, Delta);
+	OnHealthChange.Broadcast(InstigatorActor, this, NewHealth, Delta);
+}
+
+
+void USAttributeComponent::MulticastOnRageChange_Implementation(AActor* InstigatorActor, float NewRage, float Delta)
+{
+	OnRageChange.Broadcast(InstigatorActor, this, NewRage, Delta);
 }
 
 
@@ -141,4 +150,7 @@ void USAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 	DOREPLIFETIME(USAttributeComponent, Health);
 	DOREPLIFETIME(USAttributeComponent, HealthMax);
+
+	DOREPLIFETIME(USAttributeComponent, Rage);
+	DOREPLIFETIME(USAttributeComponent, RageMax);
 }

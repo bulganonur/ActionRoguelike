@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SPickup.h"
+#include "GameplayTagContainer.h"
 #include "SPickup_Action.generated.h"
 
 
@@ -24,15 +25,10 @@ protected:
 	TSubclassOf<USAction> ActionClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pickup Attributes")
-	float ReactivateDelay;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Pickup Attributes")
 	float CreditsCost;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pickup Attributes")
-	FName ActionNameToLookFor;
-
-	FTimerHandle TimerHandle_Reactivate;
+	FGameplayTag ActionTag;
 
 	bool HasAction(TArray<USAction*> Actions);
 

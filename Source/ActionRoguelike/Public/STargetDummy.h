@@ -27,5 +27,5 @@ protected:
 	USAttributeComponent* AttributeComp;
 
 	UFUNCTION()
-	void OnHealtChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+	void OnHealtChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewValue, float Delta);
 };

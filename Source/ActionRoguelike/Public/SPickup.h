@@ -28,6 +28,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* StaticMesh;
 
+	FTimerHandle TimerHandle_HideAndCooldown;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pickup Attributes")
+	float ReactivateDelay;
+
+	UPROPERTY(ReplicatedUsing = "OnRep_IsActive")
+	bool bIsActive;
+
+	UFUNCTION()
+	void OnRep_IsActive();
+
 	void Reactivate();
 	void Deactivate();
+
+	void SetPickupState(bool bNewIsActive);
+
+	void HideAndCooldown();
 };

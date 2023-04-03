@@ -20,11 +20,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Coin Attributes")
 	float CreditsIncrease;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Coin Attributes")
-	float ReactivateDelay;
-
-	FTimerHandle TimerHandle_Reactivate;
-
 public:
 
 	void Interact_Implementation(APawn* InstigatorPawn);

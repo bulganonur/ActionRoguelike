@@ -30,9 +30,8 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 				
 				PlayerState->SetCredits(-CreditsCost);
 						
-				Deactivate();
+				HideAndCooldown();
 				
-				GetWorldTimerManager().SetTimer(TimerHandle_Reactivate, this, &ASHealthPotion::Reactivate, ReactivateDelay);
 				UE_LOG(LogTemp, Warning, TEXT("INTERACTION !!!"));
 			}
 		}

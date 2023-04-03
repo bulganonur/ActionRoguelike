@@ -35,13 +35,13 @@ void ASAICharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	AttributeComp->OnHealthChanged.AddDynamic(this, &ASAICharacter::OnHealthChanged);
+	AttributeComp->OnHealthChange.AddDynamic(this, &ASAICharacter::OnHealthChange);
 	
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &ASAICharacter::OnSeePawn);
 }
 
 
-void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
+void ASAICharacter::OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewValue, float Delta)
 {
 	if (Delta < 0.0f)
 	{
@@ -68,7 +68,7 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
 		
 		/** Died **/
-		if (NewHealth <= 0.0f)
+		if (NewValue <= 0.0f)
 		{
 			AAIController* AICont = Cast<AAIController>(GetController());
 			if (AICont)
@@ -85,6 +85,18 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 	}
 }
 
+
+AActor* ASAICharacter::GetTargetActor() const
+{
+	AAIController* AICont = Cast<AAIController>(GetController());
+
+	if (AICont)
+	{
+		return Cast<AActor>(AICont->GetBlackboardComponent()->GetValueAsObject("TargetActor"));
+	}
+	
+	return nullptr;
+}
 
 void ASAICharacter::SetTargetActor(AActor* NewTarget)
 {
@@ -108,19 +120,13 @@ void ASAICharacter::RemoveWidget()
 
 void ASAICharacter::OnSeePawn(APawn* Pawn)
 {
-	SetTargetActor(Pawn);
-	if (PlayerSpottedWidget == nullptr)
+	if (GetTargetActor() != Pawn)
 	{
-		PlayerSpottedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), PlayerSpottedWidgetClass);
-		if (PlayerSpottedWidget)
-		{
-			PlayerSpottedWidget->AttachedActor = this;
-			PlayerSpottedWidget->AddToViewport();
-			FTimerHandle TimerHandle_PlayerSpottedDelay;
-			GetWorldTimerManager().SetTimer(TimerHandle_PlayerSpottedDelay, this, &ASAICharacter::RemoveWidget, 3.0f);
-		}
+		SetTargetActor(Pawn);
+		
+		MulticastOnSeePawn();
 	}
-
+	
 	DrawDebugString
 	(
 		GetWorld(),
@@ -131,4 +137,21 @@ void ASAICharacter::OnSeePawn(APawn* Pawn)
 		2.0f,
 		true
 	);
+}
+
+void ASAICharacter::MulticastOnSeePawn_Implementation()
+{
+	if (PlayerSpottedWidget == nullptr)
+	{
+		PlayerSpottedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), PlayerSpottedWidgetClass);
+
+		if (PlayerSpottedWidget)
+		{
+			PlayerSpottedWidget->AttachedActor = this;
+			PlayerSpottedWidget->AddToViewport(10);
+
+			FTimerHandle TimerHandle_PlayerSpottedDelay;
+			GetWorldTimerManager().SetTimer(TimerHandle_PlayerSpottedDelay, this, &ASAICharacter::RemoveWidget, 3.0f);
+		}
+	}
 }

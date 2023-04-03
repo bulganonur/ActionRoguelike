@@ -21,11 +21,10 @@ protected:
 	void StartAction(AActor* Instigator) override;
 	void StopAction(AActor* Instigator) override;
 
-	void ExecutePeriodicEffect(AActor* Instigator) override;
 
 	UFUNCTION()
-	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+	void OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewValue, float Delta);
 
-	float ReflectedDamagePercent;
+	float ReflectedDamageFraction;
 	
 };

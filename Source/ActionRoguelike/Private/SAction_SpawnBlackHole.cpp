@@ -12,10 +12,26 @@ USAction_SpawnBlackHole::USAction_SpawnBlackHole()
 void USAction_SpawnBlackHole::StartAction(AActor* Instigator)
 {
 	USAttributeComponent* AttributeComp = Instigator->FindComponentByClass<USAttributeComponent>();
-	if (AttributeComp && AttributeComp->GetRage() >= RageCost)
+	if (AttributeComp)
 	{
 		Super::StartAction(Instigator);
-
+		
 		AttributeComp->SetRage(RageCost);
 	}
+}
+
+bool USAction_SpawnBlackHole::CanStart(AActor* Instigator)
+{
+	if (!Super::CanStart(Instigator))
+	{
+		return false;
+	}
+
+	USAttributeComponent* AttributeComp = Instigator->FindComponentByClass<USAttributeComponent>();
+	if (AttributeComp && AttributeComp->GetRage() >= RageCost)
+	{
+		return true;
+	}
+	
+	return false;
 }

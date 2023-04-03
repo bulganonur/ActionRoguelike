@@ -4,6 +4,7 @@
 #include "SPickup.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASPickup::ASPickup()
@@ -15,15 +16,47 @@ ASPickup::ASPickup()
 	StaticMesh->SetupAttachment(RootComponent);
 	StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	SetReplicates(true);
+	ReactivateDelay = 2.0f;
+
+	bIsActive = true;
+
+	bReplicates = true;
 }
 
 void ASPickup::Reactivate()
 {
-	StaticMesh->SetVisibility(true);
+	SetPickupState(true);
 }
 
 void ASPickup::Deactivate()
 {
-	StaticMesh->SetVisibility(false);
+	SetPickupState(false);
+}
+
+void ASPickup::HideAndCooldown()
+{
+	SetPickupState(false);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_HideAndCooldown, this, &ASPickup::Reactivate, ReactivateDelay);
+}
+
+void ASPickup::SetPickupState(bool bNewIsActive)
+{
+	bIsActive = bNewIsActive;
+	OnRep_IsActive();
+}
+
+void ASPickup::OnRep_IsActive()
+{
+	SetActorEnableCollision(bIsActive);
+
+	/** Set visibility on root and all children */
+	RootComponent->SetVisibility(bIsActive, true);
+}
+
+void ASPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASPickup, bIsActive);
 }

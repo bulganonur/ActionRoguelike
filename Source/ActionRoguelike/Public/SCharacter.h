@@ -63,7 +63,7 @@ protected:
 	virtual FVector GetPawnViewLocation() const override;
 
 	UFUNCTION()
-	void OnHealtChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+	void OnHealtChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewValue, float Delta);
 
 public:	
 	// Called to bind functionality to input

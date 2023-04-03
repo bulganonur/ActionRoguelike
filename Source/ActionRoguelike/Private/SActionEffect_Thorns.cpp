@@ -18,7 +18,7 @@ USActionEffect_Thorns::USActionEffect_Thorns()
 
 	Period = 0.0f;
 
-	ReflectedDamagePercent = 0.2f;
+	ReflectedDamageFraction = 0.2f;
 }
 
 
@@ -29,46 +29,29 @@ void USActionEffect_Thorns::StartAction(AActor* Instigator)
 	USAttributeComponent* AttributeComp = Instigator->FindComponentByClass<USAttributeComponent>();
 	if (AttributeComp)
 	{
-		AttributeComp->OnHealthChanged.AddDynamic(this, &USActionEffect_Thorns::OnHealthChanged);
+		/** Start listening */
+		AttributeComp->OnHealthChange.AddDynamic(this, &USActionEffect_Thorns::OnHealthChange);
 	}
 }
 
 
 void USActionEffect_Thorns::StopAction(AActor* Instigator)
 {
+	Super::StopAction(Instigator);
+
 	USAttributeComponent* AttributeComp = Instigator->FindComponentByClass<USAttributeComponent>();
 	if (AttributeComp)
 	{
-		AttributeComp->OnHealthChanged.RemoveDynamic(this, &USActionEffect_Thorns::OnHealthChanged);
+		/** Stop listening */
+		AttributeComp->OnHealthChange.RemoveDynamic(this, &USActionEffect_Thorns::OnHealthChange);
 	}
-
-	Super::StopAction(Instigator);
 }
 
 
-void USActionEffect_Thorns::ExecutePeriodicEffect(AActor* Instigator)
+void USActionEffect_Thorns::OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewValue, float Delta)
 {
-	UE_LOG(LogTemp, Warning, TEXT("THORNS: %s"), *GetNameSafe(this));
-
-	/*if (Instigator != GetOwningComponent()->GetOwner())
+	if (Delta < 0.0f && InstigatorActor != OwningComp->GetOwner())
 	{
-		USGameplayFunctionLibrary::ApplyDamage(GetOwningComponent()->GetOwner(), Instigator, FMath::RoundToFloat(Delta * -ReflectedDamagePercent));
-
-	}*/
-
-	
-}
-
-
-void USActionEffect_Thorns::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
-{
-	if (InstigatorActor != OwningComp->GetOwner())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("THORNS ONHEALTHCHANGED: %s"), *GetNameSafe(this));
-
-		ExecutePeriodicEffect(InstigatorActor);
+		USGameplayFunctionLibrary::ApplyDamage(OwningComp->GetOwner(), InstigatorActor, FMath::RoundToFloat(Delta * -ReflectedDamageFraction));
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("ISACTIONRUNNING: %i"), bIsActionRunning);
-	
 }

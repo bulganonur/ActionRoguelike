@@ -27,7 +27,7 @@ ASProjectile::ASProjectile()
 	MovementComp->bRotationFollowsVelocity = true;
 	MovementComp->bInitialVelocityInLocalSpace = true;
 
-	SetReplicates(true);
+	bReplicates = true;
 }
 
 

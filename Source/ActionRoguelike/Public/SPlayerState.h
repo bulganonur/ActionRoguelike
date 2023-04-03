@@ -9,6 +9,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnCreditsChange, ASPlayerState*, PlayerState, float, NewCredits, float, Delta);
 
+
 UCLASS()
 class ACTIONROGUELIKE_API ASPlayerState : public APlayerState
 {
@@ -16,7 +17,7 @@ class ACTIONROGUELIKE_API ASPlayerState : public APlayerState
 
 protected:
 
-	UPROPERTY(BlueprintReadOnly, Category = "Credits")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = "OnRep_Credits", Category = "Credits")
 	float Credits;
 
 public:
@@ -27,4 +28,18 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnCreditsChange OnCreditsChange;
 	
+	/** 
+	 * OnRep_ can use a parameter containing the old variable it is bound to.
+	 * Very useful in this case to figure out the 'Delta'.
+	 */
+	UFUNCTION()
+	void OnRep_Credits(float OldCredits);
+
+	/**
+	 * Downside of useing Multicast here is that we send over more data over the net, since it's a RPC with two parameters.
+	 * OnRep_ is "free" since Credits is already getting replicated anyway.
+	 * 
+	 * UFUNCTION(NetMulticast, Reliable)
+	 * void MulticastOnCreditsChange(float NewCredits, float Delta);
+	 */
 };

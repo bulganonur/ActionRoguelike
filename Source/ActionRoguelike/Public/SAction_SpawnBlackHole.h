@@ -19,6 +19,8 @@ public:
 protected:
 
 	void StartAction(AActor* Instigator) override;
+
+	bool CanStart(AActor* Instigator) override;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Rage")
 	float RageCost;

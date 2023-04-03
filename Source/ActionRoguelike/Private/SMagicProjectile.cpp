@@ -23,7 +23,7 @@ void ASMagicProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedC
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		USActionComponent* ActionComp = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
+		USActionComponent* ActionComp = OtherActor->FindComponentByClass<USActionComponent>();
 		if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(FGameplayTag::RequestGameplayTag("Status.Parrying")))
 		{
 			MovementComp->Velocity = -(MovementComp->Velocity);

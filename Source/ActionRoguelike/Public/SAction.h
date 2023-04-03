@@ -22,9 +22,11 @@ class ACTIONROGUELIKE_API USAction : public UObject
 	GENERATED_BODY()
 
 public:
+
+	void Initialize(USActionComponent* NewActionComp);
 	
 	UFUNCTION(BlueprintCallable, Category = "Action")
-	bool CanStart(AActor* Instigator);
+	virtual bool CanStart(AActor* Instigator);
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	virtual void StartAction(AActor* Instigator);
@@ -32,8 +34,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	virtual void StopAction(AActor* Instigator);
 
+	bool IsSupportedForNetworking() const override;
+
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	bool IsActionRunning() const;
+
+	FGameplayTagContainer GetGrantedTags() const;
 
 	UWorld* GetWorld() const override;
 
@@ -47,6 +53,9 @@ public:
 
 protected:
 
+	UPROPERTY(Replicated)
+	USActionComponent* ActionComponent;
+
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	USActionComponent* GetOwningComponent() const;
 
@@ -58,5 +67,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer BlockedTags;
 
+	UPROPERTY(ReplicatedUsing = "OnRep_IsActionRunning")
 	bool bIsActionRunning;
+
+	UFUNCTION()
+	void OnRep_IsActionRunning();
 };

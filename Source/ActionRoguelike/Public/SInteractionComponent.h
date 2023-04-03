@@ -32,7 +32,7 @@ protected:
 	 * Unreliable: Not guaranteed, packet can get lost and won't retry.
 	 */
 	UFUNCTION(Server, Reliable)
-	void ServerInteract(AActor* InFocus);
+	void ServerInteract(AActor* InFocus); // Server RPC
 
 	void FindBestInteractable();
 

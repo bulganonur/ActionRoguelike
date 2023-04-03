@@ -46,14 +46,19 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComp;
 	
+	AActor* GetTargetActor() const;
+
 	void SetTargetActor(AActor* NewTarget);
 
 	void RemoveWidget();
 
 	UFUNCTION()
-	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+	void OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewValue, float Delta);
 
 	UFUNCTION()
 	void OnSeePawn(APawn* Pawn);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastOnSeePawn();
 
 };
