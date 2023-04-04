@@ -21,11 +21,13 @@ void USAction_SpawnProjectile::StartAction(AActor* Instigator)
 	{
 		Character->PlayAnimMontage(ActionAnim);
 		
-		
-		FTimerHandle TimerHandle_Action;
-		FTimerDelegate Delegate;
-		Delegate.BindUFunction(this, "SpawnProjectile", Character);
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_Action, Delegate, ActionAnimDelay, false);
+		if (Character->HasAuthority())
+		{
+			FTimerHandle TimerHandle_Action;
+			FTimerDelegate Delegate;
+			Delegate.BindUFunction(this, "SpawnProjectile", Character);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_Action, Delegate, ActionAnimDelay, false);
+		}
 	}
 }
 

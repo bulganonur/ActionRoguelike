@@ -14,7 +14,7 @@ void USAction::Initialize(USActionComponent* NewActionComp)
 
 bool USAction::CanStart(AActor* Instigator)
 {
-	if (bIsActionRunning)
+	if (RepData.bIsActionRunning)
 	{
 		return false;
 	}
@@ -35,7 +35,8 @@ void USAction::StartAction(AActor* Instigator)
 	USActionComponent* ActionComp = GetOwningComponent();
 	ActionComp->ActiveGameplayTags.AppendTags(GrantedTags);
 
-	bIsActionRunning = true;
+	RepData.bIsActionRunning = true;
+	RepData.Instigator = Instigator;
 }
 
 void USAction::StopAction(AActor* Instigator)
@@ -47,7 +48,8 @@ void USAction::StopAction(AActor* Instigator)
 	USActionComponent* ActionComp = GetOwningComponent();
 	ActionComp->ActiveGameplayTags.RemoveTags(GrantedTags);
 
-	bIsActionRunning = false;
+	RepData.bIsActionRunning = false;
+	RepData.Instigator = Instigator;
 }
 
 bool USAction::IsSupportedForNetworking() const
@@ -76,21 +78,21 @@ USActionComponent* USAction::GetOwningComponent() const
 	
 }
 
-void USAction::OnRep_IsActionRunning()
+void USAction::OnRep_RepData()
 {
-	if (bIsActionRunning)
+	if (RepData.bIsActionRunning)
 	{
-		StartAction(nullptr);
+		StartAction(RepData.Instigator);
 	}
 	else
 	{
-		StopAction(nullptr);
+		StopAction(RepData.Instigator);
 	}
 }
 
 bool USAction::IsActionRunning() const
 {
-	return bIsActionRunning;
+	return RepData.bIsActionRunning;
 }
 
 FGameplayTagContainer USAction::GetGrantedTags() const
@@ -102,6 +104,6 @@ void USAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(USAction, bIsActionRunning);
+	DOREPLIFETIME(USAction, RepData);
 	DOREPLIFETIME(USAction, ActionComponent);
 }

@@ -154,16 +154,19 @@ FVector ASCharacter::GetPawnViewLocation() const
 
 void ASCharacter::OnHealtChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewValue, float Delta)
 {
+	/** Damaged */
 	if (Delta < 0.0f)
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
 
+		/** Death */
 		if (NewValue <= 0.0f)
 		{
 			APlayerController* PC = Cast<APlayerController>(GetController());
 			if (PC)
 			{
 				DisableInput(PC);
+				SetLifeSpan(5.0f);
 			}
 		}
 		
