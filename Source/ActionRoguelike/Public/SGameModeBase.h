@@ -9,7 +9,7 @@
 
 class UCurveFloat;
 class UEnvQuery;
-class UEnvQueryInstanceBlueprintWrapper;
+class USSaveGame;
 
 
 UCLASS()
@@ -21,14 +21,28 @@ public:
 	
 	ASGameModeBase();
 
-	virtual void StartPlay() override;
+	void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
+	void StartPlay() override;
+
+	void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
 	UFUNCTION(Exec)
 	void KillAll();
 
 	virtual void OnActorKilled(AActor* Victim, AActor* Killer);
 
+	UFUNCTION(BlueprintCallable, Category = "SaveGame")
+	void WriteSaveGame();
+
+	void LoadSaveGame();
+
 protected:
+
+	UPROPERTY()
+	USSaveGame* CurrentSaveGame;
+
+	FString SlotName;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TSubclassOf<AActor> MinionClass;

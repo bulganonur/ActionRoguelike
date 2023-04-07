@@ -13,9 +13,9 @@ class USGameplayInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
+
+
+
 class ACTIONROGUELIKE_API ISGameplayInterface
 {
 	GENERATED_BODY()
@@ -25,4 +25,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Interact(APawn* InstigatorPawn);
+
+	/** Called after the Actor state was restored from a SaveGame file */
+	UFUNCTION(BlueprintNativeEvent)
+	void OnActorLoaded();
 };

@@ -22,11 +22,13 @@ public:
 	ASItemChest();
 
 	void Interact_Implementation(APawn* InstigatorPawn);
+
+	void OnActorLoaded_Implementation();
 	
 	UPROPERTY(EditAnywhere)
 	float TargetPitch;
 
-	UPROPERTY(ReplicatedUsing = "OnRep_IsLidOpen") // RepNotify
+	UPROPERTY(ReplicatedUsing = "OnRep_IsLidOpen", BlueprintReadOnly, SaveGame) // RepNotify
 	bool bIsLidOpen;
 
 	UFUNCTION()

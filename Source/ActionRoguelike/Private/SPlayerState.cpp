@@ -3,6 +3,7 @@
 
 #include "SPlayerState.h"
 #include "Net/UnrealNetwork.h"
+#include "SSaveGame.h"
 
 void ASPlayerState::SetCredits(float Delta)
 {
@@ -16,6 +17,22 @@ void ASPlayerState::SetCredits(float Delta)
 float ASPlayerState::GetCredits() const
 {
 	return Credits;
+}
+
+void ASPlayerState::SavePlayerState(USSaveGame* SaveObj)
+{
+	if (SaveObj)
+	{
+		SaveObj->Credits = Credits;
+	}
+}
+
+void ASPlayerState::LoadPlayerState(USSaveGame* SaveObj)
+{
+	if (SaveObj)
+	{
+		Credits = SaveObj->Credits;
+	}
 }
 
 void ASPlayerState::OnRep_Credits(float OldCredits)

@@ -16,9 +16,6 @@ USInteractionComponent::USInteractionComponent()
 void USInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
-	
 }
 
 
