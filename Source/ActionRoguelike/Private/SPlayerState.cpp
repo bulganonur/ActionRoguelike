@@ -31,7 +31,10 @@ void ASPlayerState::LoadPlayerState(USSaveGame* SaveObj)
 {
 	if (SaveObj)
 	{
-		Credits = SaveObj->Credits;
+		//Credits = SaveObj->Credits;
+
+		/** Make sure we trigger credits change event */
+		SetCredits(SaveObj->Credits);
 	}
 }
 

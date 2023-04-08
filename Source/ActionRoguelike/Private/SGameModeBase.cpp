@@ -57,13 +57,14 @@ void ASGameModeBase::StartPlay()
 
 void ASGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
-	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
-
 	ASPlayerState* PS = NewPlayer->GetPlayerState<ASPlayerState>();
-	if (PS)
+	if (ensure(PS))
 	{
 		PS->LoadPlayerState(CurrentSaveGame);
 	}
+	
+	/** Super calls BeginPlayerState in PlayerController which is where we instantiate UI, so setting up PlayerState first */
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 }
 
 
