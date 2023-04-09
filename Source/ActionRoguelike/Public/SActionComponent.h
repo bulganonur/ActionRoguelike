@@ -12,7 +12,11 @@
 #include "GameplayTagContainer.h" 
 #include "SActionComponent.generated.h"
 
+
 class USAction;
+
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActionStateChange, USActionComponent*, OwningComp, USAction*, Action);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -53,7 +57,7 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerStopAction(AActor* Instigator, FName ActionName);
 
-	UPROPERTY(Replicated)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 	TArray<USAction*> Actions;
 
 	/** Grant actions at game start */
@@ -64,5 +68,9 @@ public:
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+	UPROPERTY(BlueprintAssignable)
+	FOnActionStateChange OnActionStart;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnActionStateChange OnActionStop;
 };

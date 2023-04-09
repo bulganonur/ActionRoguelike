@@ -16,6 +16,9 @@ public:
 
 	USActionEffect();
 
+	UFUNCTION(BlueprintCallable, Category = "Effect")
+	float GetTimeRemaining() const;
+
 protected:
 	
 	virtual void StartAction(AActor* Instigator) override;

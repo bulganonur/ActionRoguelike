@@ -68,6 +68,12 @@ public:
 protected:
 
 	UPROPERTY(Replicated)
+	float TimeStarted;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	UTexture2D* ActionIcon;
+
+	UPROPERTY(Replicated)
 	USActionComponent* ActionComponent;
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
