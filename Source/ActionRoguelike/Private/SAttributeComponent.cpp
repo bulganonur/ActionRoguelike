@@ -26,6 +26,17 @@ bool USAttributeComponent::IsAlive() const
 }
 
 
+bool USAttributeComponent::IsFullHealth() const
+{
+	if (Health == HealthMax)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+
 bool USAttributeComponent::IsActorAlive(AActor* Actor)
 {
 	USAttributeComponent* AttributeComp = GetAttributeComp(Actor);
@@ -78,7 +89,6 @@ bool USAttributeComponent::Kill(AActor* InstigatorActor)
 {
 	return ApplyHealthChange(InstigatorActor, -HealthMax);
 }
-
 
 
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)

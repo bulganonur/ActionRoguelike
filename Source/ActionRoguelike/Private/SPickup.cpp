@@ -23,6 +23,11 @@ ASPickup::ASPickup()
 	bReplicates = true;
 }
 
+FText ASPickup::GetInteractText_Implementation(APawn* InstigatorPawn)
+{
+	return FText::GetEmpty();
+}
+
 void ASPickup::Reactivate()
 {
 	SetPickupState(true);

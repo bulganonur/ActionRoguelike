@@ -20,6 +20,8 @@ public:
 	// Sets default values for this actor's properties
 	ASPickup();
 
+	FText GetInteractText_Implementation(APawn* InstigatorPawn);
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")

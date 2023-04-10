@@ -21,7 +21,7 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 	if (ensure(InstigatorPawn))
 	{
 		USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributeComp(InstigatorPawn);
-		if (ensure(AttributeComp) && AttributeComp->GetHealth() < AttributeComp->GetHealthMax() && StaticMesh->IsVisible())
+		if (ensure(AttributeComp) && !AttributeComp->IsFullHealth() && StaticMesh->IsVisible())
 		{
 			ASPlayerState* PlayerState = InstigatorPawn->GetPlayerState<ASPlayerState>();
 			if (PlayerState && PlayerState->GetCredits() >= CreditsCost)
@@ -36,5 +36,16 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 			}
 		}
 	}
+}
+
+FText ASHealthPotion::GetInteractText_Implementation(APawn* InstigatorPawn)
+{
+	USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributeComp(InstigatorPawn);
+	if (AttributeComp && AttributeComp->IsFullHealth())
+	{
+		return NSLOCTEXT("InteractableActors", "HealthPotion_FullHealthWarning", "Already at Full Health");
+	}
+
+	return FText::Format(NSLOCTEXT("InteractableActors", "HealthPotion_InteractMessage", "Cost {0} Credits. Restores {1} Health"), CreditsCost, HealAmount);
 }
 
