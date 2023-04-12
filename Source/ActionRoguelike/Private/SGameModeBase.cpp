@@ -5,14 +5,17 @@
 #include "AI/SAICharacter.h"
 #include "DrawDebugHelpers.h"
 #include "EngineUtils.h"
+#include "Engine/AssetManager.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SCharacter.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 #include "SGameplayInterface.h"
+#include "SMonsterData.h"
 #include "SPlayerState.h"
 #include "SSaveGame.h"
 
@@ -137,20 +140,24 @@ void ASGameModeBase::OnQueryFinished_Bot(TSharedPtr<FEnvQueryResult> Result)
 	}
 
 
-	GetWorld()->SpawnActor<AActor>(MinionClass, QueryLocations[0], FRotator::ZeroRotator);
+	if (MonsterTable)
+	{
+		TArray<FMonsterInfoRow*> Rows;
+		MonsterTable->GetAllRows("", Rows);
 
+		int32 RandomIndex = FMath::RandRange(0, Rows.Num() - 1);
+		FMonsterInfoRow* SelectedRow = Rows[RandomIndex];
 
-	DrawDebugBox
-	(
-		GetWorld(),
-		QueryLocations[0],
-		FVector(400.0f),
-		FColor::Yellow,
-		false,
-		10.0f,
-		(uint8)0U,
-		20.0f
-	);
+		UAssetManager* Manager = UAssetManager::GetIfValid();
+		if (Manager)
+		{
+			TArray<FName> Bundle;
+
+			FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ASGameModeBase::OnMonsterLoad, SelectedRow->MonsterID, QueryLocations[0]);
+
+			Manager->LoadPrimaryAsset(SelectedRow->MonsterID, Bundle, Delegate);
+		}
+	}
 }
 
 
@@ -198,6 +205,92 @@ void ASGameModeBase::OnQueryFinished_Pickup(TSharedPtr<FEnvQueryResult> Result)
 			20.0f
 		);
 	}
+}
+
+
+void ASGameModeBase::OnMonsterLoad(FPrimaryAssetId MonsterID, FVector SpawnVector)
+{
+	UAssetManager* Manager = UAssetManager::GetIfValid();
+	if (Manager)
+	{
+		USMonsterData* MonsterData = Manager->GetPrimaryAssetObject<USMonsterData>(MonsterID);
+		if (MonsterData)
+		{
+			AActor* NewBot = GetWorld()->SpawnActor<AActor>(MonsterData->MonsterClass, SpawnVector, FRotator::ZeroRotator);
+
+			if (NewBot)
+			{
+				/** Grants special Actions & Buffs/Debuffs */
+				USActionComponent* ActionComp = NewBot->FindComponentByClass<USActionComponent>();
+				if (ActionComp)
+				{
+					for (TSubclassOf<USAction> Action : MonsterData->Actions)
+					{
+						ActionComp->AddAction(NewBot, Action);
+					}
+				}
+			}
+
+			DrawDebugBox
+			(
+				GetWorld(),
+				SpawnVector,
+				FVector(400.0f),
+				FColor::Yellow,
+				false,
+				10.0f,
+				(uint8)0U,
+				20.0f
+			);
+
+		}
+	}
+
+
+	/** Different way of setting asserts for better readability - considering */
+
+	//UAssetManager* Manager = UAssetManager::GetIfValid();
+	//if (!Manager)
+	//{
+	//	return;
+	//}
+
+	//USMonsterData* MonsterData = Manager->GetPrimaryAssetObject<USMonsterData>(MonsterID);
+	//if (!MonsterData)
+	//{
+	//	return;
+	//}
+
+	///** Spawn Bot */
+	//AActor* NewBot = GetWorld()->SpawnActor<AActor>(MonsterData->MonsterClass, SpawnVector, FRotator::ZeroRotator);
+	//if (!NewBot)
+	//{
+	//	return;
+	//}
+
+	//USActionComponent* ActionComp = NewBot->FindComponentByClass<USActionComponent>();
+	//if (!ActionComp)
+	//{
+	//	return;
+	//}
+
+	///** Grants special Actions & Buffs/Debuffs */
+	//for (TSubclassOf<USAction> Action : MonsterData->Actions)
+	//{
+	//	ActionComp->AddAction(NewBot, Action);
+	//}
+
+	//DrawDebugBox
+	//(
+	//	GetWorld(),
+	//	SpawnVector,
+	//	FVector(400.0f),
+	//	FColor::Yellow,
+	//	false,
+	//	10.0f,
+	//	(uint8)0U,
+	//	20.0f
+	//);
 }
 
 

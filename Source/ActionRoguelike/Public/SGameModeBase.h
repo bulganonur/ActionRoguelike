@@ -4,12 +4,47 @@
 
 #include "CoreMinimal.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
+#include "Engine/DataTable.h"
 #include "GameFramework/GameModeBase.h"
 #include "SGameModeBase.generated.h"
 
 class UCurveFloat;
+class UDataTable;
 class UEnvQuery;
+class USMonsterData;
 class USSaveGame;
+
+
+/** DataTable Row for spawning monsters in GameMode */
+USTRUCT(BlueprintType)
+struct FMonsterInfoRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+
+	FMonsterInfoRow()
+	{
+		Weight = 1.0f;
+		SpawnCost = 5.0f;
+		KillReward = 1.0f;
+	}
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FPrimaryAssetId MonsterID;
+
+	/** Relative chance to pick this monster */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Weight;
+
+	/** Points required by GameMode to spawn this unit */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float SpawnCost;
+
+	/** Amount of Credits awarded to killer of this unit */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float KillReward;
+};
 
 
 UCLASS()
@@ -44,8 +79,13 @@ protected:
 
 	FString SlotName;
 
+	/** All available monsters */
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	TSubclassOf<AActor> MinionClass;
+	UDataTable* MonsterTable;
+
+	/** Using DataTable instead */
+	/*UPROPERTY(EditDefaultsOnly, Category = "AI")
+	TSubclassOf<AActor> MinionClass;*/
 	
 	/** Used TArray Instead, leaving commented for consideration **/
 	/*UPROPERTY(EditDefaultsOnly, Category = "Pickups")
@@ -77,6 +117,8 @@ protected:
 
 	void OnQueryFinished_Bot(TSharedPtr<FEnvQueryResult> Result);
 	void OnQueryFinished_Pickup(TSharedPtr<FEnvQueryResult> Result);
+
+	void OnMonsterLoad(FPrimaryAssetId MonsterID, FVector SpawnVector);
 
 	UFUNCTION()
 	void RespawnPlayerElapsed(AController* Controller);
