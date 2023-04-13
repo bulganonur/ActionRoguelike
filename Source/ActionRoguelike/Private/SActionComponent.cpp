@@ -2,9 +2,13 @@
 
 
 #include "SActionComponent.h"
+#include "../ActionRoguelike.h"
 #include "Engine/ActorChannel.h"
 #include "Net/UnrealNetwork.h"
 #include "SAction.h"
+
+
+DECLARE_CYCLE_STAT(TEXT("StartActionByName"), STAT_StartActionByName, STATGROUP_STANFORD);
 
 
 USActionComponent::USActionComponent()
@@ -28,6 +32,21 @@ void USActionComponent::BeginPlay()
 		}
 	}
 
+}
+
+void USActionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	/** Stop all actions */
+	TArray<USAction*> ActionsCopy = Actions;
+	for (USAction* Action : ActionsCopy)
+	{
+		if (Action && Action->IsActionRunning())
+		{
+			Action->StopAction(GetOwner());
+		}
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 
@@ -92,6 +111,8 @@ void USActionComponent::ServerStopAction_Implementation(AActor* Instigator, FNam
 
 bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 {
+	SCOPE_CYCLE_COUNTER(STAT_StartActionByName);
+	
 	for (USAction* Action : Actions)
 	{
 		if (Action && Action->ActionName == ActionName)
@@ -109,6 +130,9 @@ bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 				ServerStartAction(Instigator, ActionName);
 			}
 			
+			/** Bookmark for UnrealInsights */
+			TRACE_BOOKMARK(TEXT("StartAction::%s"), *GetNameSafe(Action));
+
 			Action->StartAction(Instigator);
 			return true;
 		}

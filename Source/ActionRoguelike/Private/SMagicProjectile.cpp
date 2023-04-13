@@ -16,6 +16,8 @@ ASMagicProjectile::ASMagicProjectile()
 	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnComponentBeginOverlap);
 	
 	Damage = 20.0f;
+
+	InitialLifeSpan = 5.0f;
 }
 
 
